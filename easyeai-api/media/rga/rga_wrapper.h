@@ -22,6 +22,11 @@
 extern "C"{
 #endif
 
+// 创建一块DMA-BUF，用于加速rga处理
+int alloc_dmabuf(size_t dma_size, int *dma_fd, void **pBuf_Map);
+// 缓存同步，将CPU缓存中的数据同步到设备，每通过mmap修改后，都需要这样同步进去
+int dma_sync_cpu_to_device(int fd);
+
 /* rotate source image 0 degrees clockwise */
 #define HAL_TRANSFORM_ROT_0      0x00
 #if 0 // ---此组定义已写在<rga/RgaApi.h>中
@@ -44,16 +49,12 @@ typedef struct {
     int hor_stride;
     int ver_stride;
     int rotation;
+    int fd;
     void *pBuf;
 }Image;
-
 //*strFmt: "NV12"、"NV21"、"RGB"、"BGR"
 extern RgaSURF_FORMAT rgaFmt(char *strFmt);
-
-extern void rga_init();
-extern void rga_unInit();
 extern int  srcImg_ConvertTo_dstImg(Image *pDst, Image *pSrc);
-
 
 
 #ifdef __cplusplus

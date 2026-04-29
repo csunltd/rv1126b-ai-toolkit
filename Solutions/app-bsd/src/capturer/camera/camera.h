@@ -25,6 +25,11 @@ extern "C" {
 #define	USB_OTG		1
 #define	USB2_0		3
 #define	USB_DIRECT	0
+
+#ifndef MIPI_SRCFRAME_MAX_PLANES
+#define MIPI_SRCFRAME_MAX_PLANES 1
+#endif
+
 /* usb camera */
 int usbcamera_init(int vIndex, int width, int height, int rot);
 void usbcamera_exit(int vIndex);
@@ -82,6 +87,21 @@ int mipicamera_init(int camIndex, int width, int height, int rot);
 void mipicamera_exit(int camIndex);
 int mipicamera_getframe(int camIndex, char *pbuf);
 void mipicamera_set_format(int camIndex, int format);
+
+
+typedef struct {
+    uint8_t *pMapBuff;
+    int width;
+    int height;
+    int horStride;
+    int verStride;
+    int dataSize;
+    int format;
+    struct v4l2_plane planes[MIPI_SRCFRAME_MAX_PLANES];
+    struct v4l2_buffer readbuffer;
+}SrcFrame_t;
+int mipicamera_getSrcframe(int camIndex, SrcFrame_t *pFrame);
+int mipicamera_putSrcframe(int camIndex, SrcFrame_t *pFrame);
 
 #ifdef __cplusplus
 }

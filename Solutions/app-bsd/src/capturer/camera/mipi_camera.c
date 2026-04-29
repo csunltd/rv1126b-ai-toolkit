@@ -31,6 +31,8 @@
 
 #include <rga/RgaApi.h>
 
+#include "camera.h"
+
 #define PTRINT uint64_t
 #define CAM_MAX_NUM     4
 /* 宏定义 */
@@ -341,6 +343,8 @@ static int v4l2_camera_init(mipi_camera_t *cam)
         return -1;
     }
     printf("\033[36m>>>>--start to capture video stream ...--<<<<\033[0m \n");
+    /* 启流后给 ISP/传感器一点时间，避免紧接着 DQBUF 在部分机型上长时间无帧 */
+    usleep(50000);
 
     return fd;
 }
@@ -366,6 +370,18 @@ static void v4l2_camera_exit(mipi_camera_t *cam)
             cam->size[i] = 0;
         }
     }
+
+#if 0
+    struct v4l2_requestbuffers req;
+    memset(&req, 0, sizeof(req));
+    req.count = 0;
+    req.type = cam->buff_Type;
+    req.memory = V4L2_MEMORY_MMAP;
+    if (ioctl(cam->fd, VIDIOC_REQBUFS, &req) < 0) {
+        perror("ioctl: VIDIOC_REQBUFS(0) release driver buffers");
+    }
+#endif
+
     close(cam->fd);
     cam->fd = 0;
 
@@ -430,6 +446,70 @@ static int v4l2_camera_getframe(mipi_camera_t *cam, char *pbuf)
 //=====================================================================================================================
     
     ret = ioctl(cam->fd, VIDIOC_QBUF, &readbuffer); // 用完以后把缓存帧放回队列中
+    if(ret < 0) {
+		printf("error func:%s, line:%d\n", __func__, __LINE__);
+        perror("put buffer back to queue fail !");
+        return ret;
+    }
+
+    return 0;
+}
+
+static int v4l2_camera_getsrcframe(mipi_camera_t *cam, SrcFrame_t *pFrame)
+{
+    int ret = -1;
+    if(cam->fd < 0){
+		printf("error func:%s, line:%d\n", __func__, __LINE__);
+        perror("cam->fd invalid !");
+        return -1;
+    }
+    
+    //从队列中提取一帧数据
+    memset(&pFrame->readbuffer, 0, sizeof(pFrame->readbuffer));
+    pFrame->readbuffer.type = cam->buff_Type;
+    pFrame->readbuffer.memory = V4L2_MEMORY_MMAP;
+	if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ==  pFrame->readbuffer.type) {
+        memset(pFrame->planes, 0, MIPI_SRCFRAME_MAX_PLANES * sizeof(struct v4l2_plane));
+		pFrame->readbuffer.m.planes = pFrame->planes;
+		pFrame->readbuffer.length = MIPI_SRCFRAME_MAX_PLANES;
+	}
+
+    ret = ioctl(cam->fd, VIDIOC_DQBUF, &pFrame->readbuffer); // 从队列中取出一个缓冲帧
+    if(ret < 0){
+		printf("error func:%s, line:%d\n", __func__, __LINE__);
+        perror("get buffer form queue fail !");
+        return ret;
+    }
+#if 0
+    uint32_t buffSize;
+	if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == readbuffer.type)
+		buffSize = readbuffer.m.planes[0].bytesused;
+	else
+		buffSize = readbuffer.bytesused;
+#endif
+    // 把一帧数据送出去
+//===================================================== [把缓存格式化好放出去] =====================================================
+    pFrame->pMapBuff = cam->mptr[pFrame->readbuffer.index];
+    pFrame->width = cam->in_width;
+    pFrame->height = cam->in_height;
+    pFrame->horStride = cam->in_width;
+    pFrame->verStride = cam->in_height;
+    pFrame->format = rga_fmt(cam->in_format);
+
+    pFrame->dataSize = pFrame->width * pFrame->height * 3/2; //NV12
+//=====================================================================================================================
+    return 0;
+}
+static int v4l2_camera_putsrcframe(mipi_camera_t *cam, SrcFrame_t *pFrame)
+{
+    int ret = -1;
+    if(cam->fd < 0){
+		printf("error func:%s, line:%d\n", __func__, __LINE__);
+        perror("cam->fd invalid !");
+        return -1;
+    }
+    
+    ret = ioctl(cam->fd, VIDIOC_QBUF, &pFrame->readbuffer); // 用完以后把缓存帧放回队列中
     if(ret < 0) {
 		printf("error func:%s, line:%d\n", __func__, __LINE__);
         perror("put buffer back to queue fail !");
@@ -520,6 +600,26 @@ int mipicamera_getframe(int camIndex, char *pbuf)
     mipi_camera_t *pCam = ptrCam(camIndex);
     if(pCam){
 	    return v4l2_camera_getframe(pCam, pbuf);
+    }else{
+        return -1;
+    }
+}
+
+int mipicamera_getSrcframe(int camIndex, SrcFrame_t *pFrame)
+{
+    mipi_camera_t *pCam = ptrCam(camIndex);
+    if(pCam){
+	    return v4l2_camera_getsrcframe(pCam, pFrame);
+    }else{
+        return -1;
+    }
+}
+
+int mipicamera_putSrcframe(int camIndex, SrcFrame_t *pFrame)
+{
+    mipi_camera_t *pCam = ptrCam(camIndex);
+    if(pCam){
+	    return v4l2_camera_putsrcframe(pCam, pFrame);
     }else{
         return -1;
     }

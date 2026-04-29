@@ -34,7 +34,19 @@
 #define PTRINT uint64_t
 #define CAM_MAX_NUM     4
 /* 宏定义 */
-#define BUF_COUNT       3
+#define BUF_COUNT       2
+
+#define FMT_TYPE_MAX_NUM 8 //每个camera最多[FMT_TYPE_MAX_NUM]种格式
+#define RES_MAX_NUM 8  //每种格式最多[RES_MAX_NUM]种分辨率
+typedef struct {
+    int width;
+    int height;
+} camera_resolution_t;
+typedef struct {
+    int isValid;
+    uint32_t format;
+    camera_resolution_t res[RES_MAX_NUM];
+} camera_format_t;
 
 typedef struct {
     int cam_chn_num;
@@ -55,7 +67,6 @@ typedef struct {
 } mipi_camera_t;
 
 /* 全局变量 */
-
 static mipi_camera_t mipiCam[CAM_MAX_NUM] = {0};
 
 static char *v4l2_fmt(uint32_t fmt)
@@ -88,6 +99,31 @@ static RgaSURF_FORMAT rga_fmt(uint32_t v4l2_fmt)
     }
     return retFmt;
 }
+static int get_max_resolution_by_format(camera_format_t *cam_fmts, uint32_t fmt, int *outWidth, int *outHeight)
+{
+    int width = 0, height =0;
+    for(int i = 0; i < FMT_TYPE_MAX_NUM; i++){
+        if(cam_fmts[i].isValid == 0)
+            continue;
+
+        if(cam_fmts[i].format == fmt){
+            for(int j = 0; j < RES_MAX_NUM; j++){
+                if(width < cam_fmts[i].res[j].width){
+                    width = cam_fmts[i].res[j].width;
+                    height = cam_fmts[i].res[j].height;
+                }
+            }
+        }
+    }
+
+    if(( 0==width ) || (0 == height))
+        return -1;
+
+    *outWidth = width;
+    *outHeight = height;
+    return 0;
+}
+
 
 #define FMT_NUM_PLANES 1
 static int v4l2_camera_init(mipi_camera_t *cam)
@@ -104,7 +140,8 @@ static int v4l2_camera_init(mipi_camera_t *cam)
         printf("Error opening camera device[%s]\n", device);
         return -1;
     }
-    // 查询设备属性
+    
+    // 查询设备能力
     struct v4l2_capability cap;
     memset(&cap, 0, sizeof(cap));
     ret = ioctl(fd, VIDIOC_QUERYCAP, &cap);
@@ -137,41 +174,56 @@ static int v4l2_camera_init(mipi_camera_t *cam)
         printf("\tMPLANE\n");
     }
     
+    // 查询摄像头支持格式与分辨率列表
+    camera_format_t cam_fmts[FMT_TYPE_MAX_NUM]={0};
     printf("Support format:\n");
     struct v4l2_fmtdesc fmtdesc; 
     fmtdesc.type  = cam->buff_Type;
     fmtdesc.index = 0;
     while(ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1) {
         // fmt
-        printf("\t%d.%s[", fmtdesc.index+1, fmtdesc.description);
+        printf("\t%d.%s_(%s)[", fmtdesc.index+1, v4l2_fmt(fmtdesc.pixelformat), fmtdesc.description);
+        if(fmtdesc.index < FMT_TYPE_MAX_NUM) { //注意，这里越界可能会有bug，完美解决需要用链表
+            cam_fmts[fmtdesc.index].isValid = 1;
+            cam_fmts[fmtdesc.index].format = fmtdesc.pixelformat;
+        }
         // resolution
         struct v4l2_frmsizeenum frmsize;
         memset(&frmsize, 0, sizeof(frmsize));
         frmsize.pixel_format = fmtdesc.pixelformat;
         frmsize.index = 0;
         while(ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmsize) != -1) {
-            printf("%d-(%ux%u);", frmsize.index+1, frmsize.stepwise.max_width, frmsize.stepwise.max_height);
+            if(frmsize.index < RES_MAX_NUM) { //注意，这里越界可能会有bug，完美解决需要用链表
+                cam_fmts[fmtdesc.index].res[frmsize.index].width = frmsize.stepwise.max_width;
+                cam_fmts[fmtdesc.index].res[frmsize.index].height = frmsize.stepwise.max_height;
+            }
+            printf("%d--(%ux%u);", frmsize.index+1, frmsize.stepwise.max_width, frmsize.stepwise.max_height);
             frmsize.index++;
         }
         printf("]\n");
         fmtdesc.index++;
     }
+    cam->in_format = V4L2_PIX_FMT_NV12; //根据实际情况设置格式
+    if(0 != get_max_resolution_by_format(cam_fmts, cam->in_format, &cam->in_width, &cam->in_height)){
+        printf("can not get valid resolution from support list.\n");
+        close(fd);
+        return -1;
+    }
     
-    // 设置摄像头参数
+    // 获取摄像头当前参数
     struct v4l2_format vfmt;
     memset(&vfmt, 0, sizeof(vfmt));
     vfmt.type = cam->buff_Type;   //设置类型摄像头采集
+#if 0
     if(ioctl(fd, VIDIOC_G_FMT, &vfmt) < 0){
         perror("2. ioctl: VIDIOC_G_FMT fail");
         close(fd);
         return -1;
     }
-    //vfmt.fmt.pix.width = 3840;//u32Width;
-    //vfmt.fmt.pix.height = 2160;//u32Height;
-    cam->in_width = vfmt.fmt.pix.width;
-    cam->in_height = vfmt.fmt.pix.height;
-    cam->in_format = vfmt.fmt.pix.pixelformat;
-    //vfmt.fmt.pix.pixelformat = cam->in_format; //根据实际情况设置格式
+#endif
+    vfmt.fmt.pix.width = cam->in_width;
+    vfmt.fmt.pix.height = cam->in_height;
+    vfmt.fmt.pix.pixelformat = cam->in_format;
     vfmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
     //vfmt.fmt.pix.bytesperline = IMAGE_RATIO*u32Width;
     //vfmt.fmt.pix.sizeimage = IMAGE_RATIO*u32Width*u32Height;
@@ -212,17 +264,6 @@ static int v4l2_camera_init(mipi_camera_t *cam)
     printf(" colorspace: %d\n", tv_fmt.fmt.pix.colorspace);
     printf(" priv: %d\n", tv_fmt.fmt.pix.priv);
     printf(" raw_date: %s\n", tv_fmt.fmt.raw_data);
-#endif
-
-
-#if 0
-    while(ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1) {
-        if(fmtdesc.pixelformat & vfmt.fmt.pix.pixelformat) {
-            printf("\tformat:%s\n", fmtdesc.description);
-            break;
-        }
-        fmtdesc.index++;
-    }
 #endif
 
     // 申请一个拥有四个缓冲帧的缓冲区
@@ -309,23 +350,27 @@ static void v4l2_camera_exit(mipi_camera_t *cam)
     if(cam->fd < 0){
 		printf("error func:%s, line:%d\n", __func__, __LINE__);
         perror("cam->fd invalid !");
+        return;
     }
     printf("\033[33m>>>>--stop capture video stream ...--<<<<\033[0m \n");
-    // stop video capturer & close v4l2 fd
     int type = (int) cam->buff_Type;
-    if(ioctl(cam->fd, VIDIOC_STREAMOFF, &type) < 0) {
-        printf("ioctl: VIDIOC_STREAMOFF fail\n");
+    if (ioctl(cam->fd, VIDIOC_STREAMOFF, &type) < 0) {
+        perror("ioctl: VIDIOC_STREAMOFF");
     }
     
     // unmap buff
-    for(int i=0; i<BUF_COUNT; i++) {
-        munmap(cam->mptr[i], cam->size[i]); // 断开映射
+    for (int i = 0; i < BUF_COUNT; i++) {
+        if (cam->mptr[i] && cam->size[i]) {
+            munmap(cam->mptr[i], cam->size[i]);
+            cam->mptr[i] = NULL;
+            cam->size[i] = 0;
+        }
     }
     close(cam->fd);
     cam->fd = 0;
 
     //close完，要给点时间等待资源释放完毕，不然再次打开会概率出现buff读取卡死的情况。
-    usleep(200000);
+    usleep(500000);
 }
 
 static int v4l2_camera_getframe(mipi_camera_t *cam, char *pbuf)

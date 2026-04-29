@@ -48,22 +48,15 @@ void *main_thread_entry(void *para)
 
     // 初始化屏幕
     bool bScreenInites = false;
-    int width=0, height=0, refresh=0;
-    if (0 == screen_init()) {
+    if (0 == disp_init()) {
         bScreenInites = true;
-        screen_info(&width, &height, &refresh);
-        printf("成功初始化屏幕，分辨率: %dx%d@%dHz\n", width, height, refresh);
 
         set_uiLayer_on_top(true);
         set_alpha_blend_mode(1);
+        
+	window_commit(image.data, image.cols, image.rows, 0/*HAL_TRANSFORM_ROT_90*/);
     }else{
         fprintf(stderr, "屏幕初始化失败\n");
-    }
-
-    display_t dispArea = {0, 0, width, height};
-    if(bScreenInites){
-        disp_init(&dispArea);
-        window_commit(image.data, image.cols, image.rows);
     }
 
     mThreadWorking = true;

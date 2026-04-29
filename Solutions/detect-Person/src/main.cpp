@@ -3,9 +3,9 @@
 
 #include "system_opt.h"
 #include "person_detect.h"
+#include "display.h"
 
 #include "camera/camera.h"
-#include "display/display.h"
 
 
 
@@ -120,8 +120,7 @@ int main(int argc, char **argv)
     Mat image;
 
     // 1.初始化显示屏
-    int width, height;
-    if (disp_init(&width, &height) < 0) {
+    if (0 != disp_init()) {
         fprintf(stderr, "DRM初始化失败\n");
         return -1;
     }
@@ -201,7 +200,7 @@ int main(int argc, char **argv)
             plot_one_box(image, x1, x2, y1, y2, text, i%10);
         }
 
-        disp_commit(image.data, CAMERA_WIDTH, CAMERA_HEIGHT, HAL_TRANSFORM_ROT_270);
+        window_commit(image.data, CAMERA_WIDTH, CAMERA_HEIGHT, HAL_TRANSFORM_ROT_270);
         usleep(15*1000); //15ms
     }
 

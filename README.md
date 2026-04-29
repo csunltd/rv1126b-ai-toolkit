@@ -22,6 +22,22 @@
 
 重要更新：
 ---
+> 2026-04-29 :
+> * 发布 EASY-EAI-Toolkit-1126B-0.1.0
+> * 更新 easyeai-api
+>     * 多媒体组件api
+>         * [更新] display
+>         * [更新] rga_wrapper
+> * 新增【Api单例】
+>     * [新增] media-display
+> * 更新【开发实例】
+>     * [更新] rtspIPCamera
+>     * [更新] rtspMulitPlayer
+>     * [更新] detect-Person
+>     * [新增] app-bsd
+> * 更新【UI开发实例】
+>     * [更新] QDemo
+>
 > 2026-04-10 :
 > * 发布 EASY-EAI-Toolkit-1126B-0.0.9
 > * 更新 easyeai-api

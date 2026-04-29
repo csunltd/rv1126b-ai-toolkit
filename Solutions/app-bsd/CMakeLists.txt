@@ -34,6 +34,7 @@ include (${common_root}/log_manager/api.cmake)
 include (${meida_root}/rga/api.cmake)
 include (${meida_root}/gst_opt/api.cmake)
 include (${meida_root}/display/api.cmake)
+include (${algorithm_root}/bsd/api.cmake)
 include (${algorithm_root}/person_detect/api.cmake)
 ## api头文件路径
 set(api_inc 
@@ -43,6 +44,7 @@ set(api_inc
     ${RGA_INCLUDE_DIRS} 
     ${GSTOPT_INCLUDE_DIRS} 
     ${DISPLAY_INCLUDE_DIRS} 
+    ${BSD_INCLUDE_DIRS} 
     ${PERSON_DETECT_INCLUDE_DIRS} 
     )
 ## api源文件路径
@@ -56,6 +58,7 @@ link_directories(
     ${LOGMANAGER_LIBS_DIRS} 
     ${GSTOPT_LIBS_DIRS} 
     ${DISPLAY_LIBS_DIRS} 
+    ${BSD_LIBS_DIRS} 
     ${PERSON_DETECT_LIBS_DIRS} 
 )
 ## api所依赖的库参数
@@ -67,6 +70,7 @@ set(sysLib_list
     ${GSTOPT_LIBS} 
     ${DISPLAY_LIBS} 
     ${PERSON_DETECT_LIBS} 
+    ${BSD_LIBS} 
     )
 # ======================== easyeai_api =========================
 
@@ -111,6 +115,7 @@ set(custom_inc
     #${GST1.0_INCLUDE_DIRS} 
     #${GST1.0_VIDEO_INCLUDE_DIRS} 
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/src/capturer/camera
 )
 # -L
 link_directories(
@@ -132,6 +137,7 @@ set(custom_libs
 # source code
 aux_source_directory(./src dir_srcs)
 aux_source_directory(./src/capturer dir_srcs)
+aux_source_directory(./src/capturer/camera dir_srcs)
 aux_source_directory(./src/analyzer dir_srcs)
 aux_source_directory(./src/player dir_srcs)
 # ========================== custom ============================

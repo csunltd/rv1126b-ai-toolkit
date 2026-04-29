@@ -69,6 +69,26 @@ static void paint_algorithm_result(Mat image, ChnResult_t result)
     }
 }
 
+/** OpenCV BGRA (Mat CV_8UC4) -> DMA 缓冲区 ABGR8888，按行写入（支持 pitch >= width*4） */
+static void copy_bgra_mat_to_abgr8888(const Mat &bgra, void *abgr_dst, int dst_pitch_bytes)
+{
+    CV_Assert(bgra.type() == CV_8UC4);
+    const int h = bgra.rows, w = bgra.cols;
+    auto *dst_base = static_cast<uint8_t *>(abgr_dst);
+    for (int y = 0; y < h; y++) {
+        const uint8_t *src = bgra.ptr<uint8_t>(y);
+        uint8_t *dst = dst_base + (size_t)y * dst_pitch_bytes;
+        for (int x = 0; x < w; x++) {
+            dst[0] = src[3];
+            dst[1] = src[0];
+            dst[2] = src[1];
+            dst[3] = src[2];
+            src += 4;
+            dst += 4;
+        }
+    }
+}
+
 
 class Analyzer
 {
@@ -96,6 +116,7 @@ public:
 
     bool mAnalyzeThreadWorking;
     bool mDisplayThreadWorking;
+    bool mPaintBoxThreadWorking;
     pthread_mutex_t mVideoChnLock;
     //pthread_mutex_t mAudioChnLock;
     int32_t mMaxChnNum;
@@ -168,18 +189,37 @@ static void *imgDisplay_thread(void *para)
 {
     Analyzer *pSelf = (Analyzer *)para;
 
-    disp_init();
+	// 1.初始化屏幕硬件，并创建display区域
+	int sw = 0, sh = 0, refresh = 0;
+	if (0 == screen_info(&sw, &sh, &refresh)){
+		display_t display_dev = {0, 0, sw, sh};
+		if (0 != disp_init_pro(&display_dev)) {
+            pthread_exit(NULL);
+		}
+	}
+
+    // 2.向display区域添加4个窗口
+    int win_width = sw/2,  cols = 2/*行数*/;
+    int win_height = sh/2, rows = 2/*列数*/;
+	for (int i = 0; i < pSelf->mMaxChnNum; i++) {
+		window_t win = {0};
+		win.zpos = i;
+		win.win_x = (i%cols)*win_width;
+		win.win_y = (i/rows)*win_height;
+		win.win_w = win_width;
+		win.win_h = win_height;
+		if (add_window_to(DISPLAY, &win) < 0) {
+			fprintf(stderr, "add_window_to DISPLAY chn %d failed\n", i);
+		}
+	}
+    
     // --无信号通道显示内容
     bool bShowNoSig = true;
     Mat noSignal_img = imread("./noSignal.jpg", 1);
-    // --有信号通道显示设置
-    int videoDuration = 30;//秒
-    int preTimeStamp = get_timeval_ms();
-    int curTimeStamp = preTimeStamp;
     
     int chnId = 0;
-    Mat image = Mat(1080/*height*/, 1920/*width*/, CV_8UC3);
-    ChnResult_t result;
+    //Mat image = Mat(1080/*height*/, 1920/*width*/, CV_8UC3);
+	display_dmabuf_frame_t frame;
     pSelf->mDisplayThreadWorking = true;
     while(1){
         if(!pSelf->mDisplayThreadWorking){
@@ -191,58 +231,145 @@ static void *imgDisplay_thread(void *para)
             msleep(5);
             break;
         }
-
-        // 每隔videoDuration秒切换一次通道
-        curTimeStamp = get_timeval_ms();
-        if(videoDuration*1000 <= (curTimeStamp-preTimeStamp)){
-            chnId++;
-            chnId%=pSelf->mMaxChnNum;
-
-            preTimeStamp = curTimeStamp;
-        }
         
-        vChnObject *pVideoObj = pSelf->getVideoChnObject(chnId);
-        if(pVideoObj){
-            Image srcImage, dstImage;
-            memset(&srcImage, 0, sizeof(srcImage));
-            memset(&dstImage, 0, sizeof(dstImage));
-            srcImage.fmt = RK_FORMAT_BGR_888;
-            srcImage.width = pVideoObj->image.cols;
-            srcImage.height = pVideoObj->image.rows;
-            srcImage.hor_stride = pVideoObj->image.cols;
-            srcImage.ver_stride = pVideoObj->image.rows;
-            srcImage.rotation = HAL_TRANSFORM_ROT_0;
-            srcImage.pBuf = (void *)pVideoObj->image.data;
-            dstImage.fmt = RK_FORMAT_BGR_888;
-            dstImage.width = image.cols;
-            dstImage.height = image.rows;
-            dstImage.hor_stride = image.cols;
-            dstImage.ver_stride = image.rows;
-            dstImage.rotation = HAL_TRANSFORM_ROT_0;
-            dstImage.pBuf = (void *)image.data;
-            pthread_rwlock_rdlock(&pVideoObj->imgLock);
-            // 用rga快速复制一份待显示图像
-            srcImg_ConvertTo_dstImg(&dstImage, &srcImage);
-            // 提取分析结果
-            memset(&result, 0, sizeof(ChnResult_t));
-            memcpy(&result, &pVideoObj->chnResult, sizeof(ChnResult_t));
-            pthread_rwlock_unlock(&pVideoObj->imgLock);
-            
-            // 绘制分析结果到待显示图像
-            paint_algorithm_result(image, result);
-
-            window_commit(image.data, image.cols, image.rows, HAL_TRANSFORM_ROT_270);
-            bShowNoSig = true;
-            
-        }else if(bShowNoSig){
-            window_commit(noSignal_img.data, noSignal_img.cols, noSignal_img.rows, HAL_TRANSFORM_ROT_270);
-            bShowNoSig = false;
+        for(chnId = 0; chnId < pSelf->mMaxChnNum; chnId++){
+            vChnObject *pVideoObj = pSelf->getVideoChnObject(chnId);
+            if(pVideoObj){
+            	memset(&frame, 0, sizeof(frame));
+            	frame.dmabuf_fd = pVideoObj->dma.fd;
+            	frame.width = pVideoObj->image.cols;
+            	frame.height = pVideoObj->image.rows;
+            	frame.pitch_bytes = pVideoObj->image.cols * 3; //BGR888为3个字节
+            	frame.rotation = HAL_TRANSFORM_ROT_270;
+            	frame.rga_format = RK_FORMAT_BGR_888;
+        		if (window_commit_pro(chnId, &frame) != 0)
+        			fprintf(stderr, "window_commit_pro(%d) failed\n", chnId);
+                bShowNoSig = true;
+                
+            }else if(bShowNoSig){
+                //disp_commit(noSignal_img.data, noSignal_img.cols, noSignal_img.rows, HAL_TRANSFORM_ROT_270);
+                bShowNoSig = false;
+            }
         }
+    	if (window_refresh_pro() != 0)
+    		perror("window_refresh_pro");
         
         msleep(15);
     }
 
-    disp_exit();
+	disp_release_pro();
+
+    pthread_exit(NULL);
+}
+
+static void *paintBox_thread(void *para)
+{
+    Analyzer *pSelf = (Analyzer *)para;
+
+	// 1.初始化屏幕硬件，并创建display区域
+	int sw = 0, sh = 0, refresh = 0;
+	if (0 == screen_info(&sw, &sh, &refresh)){
+		display_t display_dev = {0, 0, sw, sh};
+		if (0 != uiLayer_init_pro(&display_dev)) {
+            pthread_exit(NULL);
+		}
+	}
+    set_uiLayer_on_top(true);
+    set_alpha_blend_mode(1);
+    
+    // 2.向display区域添加4个窗口
+    int win_width = sw/2,  cols = 2/*行数*/;
+    int win_height = sh/2, rows = 2/*列数*/;
+	for (int i = 0; i < pSelf->mMaxChnNum; i++) {
+		window_t win = {0};
+		win.zpos = i;
+		win.win_x = (i%cols)*win_width;
+		win.win_y = (i/rows)*win_height;
+		win.win_w = win_width;
+		win.win_h = win_height;
+		if (add_window_to(UILAYER, &win) < 0) {
+			fprintf(stderr, "add_window_to UILAYER chn %d failed\n", i);
+		}
+	}
+    
+    int win_width_270 = win_height;
+    int win_height_270 = win_width;
+    void *dma_pBuffer[4] = {NULL, NULL, NULL, NULL};
+    int dma_fd[4] = {-1, -1, -1, -1};
+    const size_t overlay_plane_bytes = (size_t)win_width_270 * win_height_270 * 4;
+    for (int i = 0; i < pSelf->mMaxChnNum; i++) {
+        if (alloc_dmabuf(overlay_plane_bytes, &dma_fd[i], &dma_pBuffer[i]) != 0) {
+            fprintf(stderr, "alloc_dmabuf failed (%zu bytes)\n", overlay_plane_bytes);
+        } else if (dma_pBuffer[i]) {
+            /* ABGR8888：A=0 为全透明，整缓冲清零即可 */
+            memset(dma_pBuffer[i], 0, overlay_plane_bytes);
+            dma_sync_cpu_to_device(dma_fd[i]);
+        }
+    }
+
+    
+    Mat drawFull;
+    Mat drawScaled(win_height_270, win_width_270, CV_8UC4);
+
+    int chnId = 0;
+    ChnResult_t result;
+	display_dmabuf_frame_t frame;
+    pSelf->mPaintBoxThreadWorking = true;
+    while(1){
+        if(!pSelf->mPaintBoxThreadWorking){
+            msleep(5);
+            break;
+        }
+        
+        if(NULL == pSelf){
+            msleep(5);
+            break;
+        }
+        
+        for(chnId = 0; chnId < pSelf->mMaxChnNum; chnId++){
+            vChnObject *pVideoObj = pSelf->getVideoChnObject(chnId);
+            if(pVideoObj){
+                pthread_rwlock_rdlock(&pVideoObj->imgLock);
+                int ic = pVideoObj->image.cols;
+                int ir = pVideoObj->image.rows;
+                memset(&result, 0, sizeof(ChnResult_t));
+                memcpy(&result, &pVideoObj->chnResult, sizeof(ChnResult_t));
+                pthread_rwlock_unlock(&pVideoObj->imgLock);
+
+                // 这块地方非常耗CPU，后面有时间可以考虑把它优化了。
+                if (ic > 0 && ir > 0 && dma_pBuffer[chnId]) {
+                    drawFull.create(ir, ic, CV_8UC4);
+                    drawFull.setTo(Scalar(0, 0, 0, 0));
+                    // 画框到一个大画面
+                    paint_algorithm_result(drawFull, result);
+                    // 把画面重新弄小
+                    cv::resize(drawFull, drawScaled, drawScaled.size(), 0, 0, INTER_LINEAR);
+                    // 把再把小画面拷贝到dma内存上
+                    copy_bgra_mat_to_abgr8888(drawScaled, dma_pBuffer[chnId], win_width_270 * 4);
+                } else if (dma_pBuffer[chnId]) {
+                    memset(dma_pBuffer[chnId], 0, overlay_plane_bytes);
+                }
+                dma_sync_cpu_to_device(dma_fd[chnId]);
+
+            	memset(&frame, 0, sizeof(frame));
+            	frame.dmabuf_fd = dma_fd[chnId];
+            	frame.width = win_width_270;
+            	frame.height = win_height_270;
+            	frame.pitch_bytes = win_width_270 * 4; //ABGR8888为4个字节
+            	frame.rotation = HAL_TRANSFORM_ROT_270;
+            	frame.rga_format = RK_FORMAT_ABGR_8888;
+        		if (uiLayer_commit_pro(chnId, &frame) != 0)
+        			fprintf(stderr, "window_commit_pro(%d) failed\n", chnId);
+            }
+        }
+    	if (uiLayer_refresh_pro() != 0)
+    		perror("window_refresh_pro");
+        
+        msleep(15);
+    }
+    
+	uiLayer_release_pro();
+
     pthread_exit(NULL);
 }
 
@@ -250,8 +377,11 @@ Analyzer *Analyzer::m_pSelf = NULL;
 Analyzer::Analyzer(int32_t maxChn) :
     mAnalyzeThreadWorking(false),
     mDisplayThreadWorking(false),
+    mPaintBoxThreadWorking(false),
     mMaxChnNum(maxChn)
 {
+    //rga_init();
+    
     /*初始化通道锁*/
     pthread_mutex_init(&mVideoChnLock, NULL);
     //pthread_mutex_init(&mAudioChnLock, NULL);
@@ -261,9 +391,17 @@ Analyzer::Analyzer(int32_t maxChn) :
         return ;
     }
     
+	if (0 != screen_init()){
+        return ;
+	}
     if(0 != CreateJoinThread(imgDisplay_thread, this, &mDisplayTid)){
         return ;
     }
+#if 1
+    if(0 != CreateJoinThread(paintBox_thread, this, &mDisplayTid)){
+        return ;
+    }
+#endif
 }
 Analyzer::~Analyzer()
 {
@@ -271,7 +409,7 @@ Analyzer::~Analyzer()
     // 1，等待取流线程跑起来
     int timeOut_ms = 1000; //设置n(ms)超时，超时就不等了
     while(1){
-        if(((true == mDisplayThreadWorking)&&(true == mAnalyzeThreadWorking))||(timeOut_ms <= 0)){
+        if(((true == mDisplayThreadWorking)&&(true == mAnalyzeThreadWorking)&&(true == mPaintBoxThreadWorking))||(timeOut_ms <= 0)){
             break;
         }
         timeOut_ms--;
@@ -326,10 +464,14 @@ Analyzer::~Analyzer()
     /*回收视频资源*/
     delAllVideoChannel();
     pthread_mutex_destroy(&mVideoChnLock);
+    
+	screen_exit();
 
     /*回收音频资源*/
     //delAllAudioChannel();
     //pthread_mutex_destroy(&mAudioChnLock);
+    
+    //rga_unInit();
 }
 void Analyzer::createAnalyzer(int32_t maxChn)
 {
@@ -386,6 +528,7 @@ int32_t Analyzer::upDateVideoChannel(int chnId, char *imgData, ImgDesc_t imgDesc
     srcImage.hor_stride = imgDesc.horStride;
     srcImage.ver_stride = imgDesc.verStride;
     srcImage.rotation = HAL_TRANSFORM_ROT_0;
+    srcImage.fd = -1;
     srcImage.pBuf = imgData;
     
     dstImage.fmt = RK_FORMAT_BGR_888;
@@ -394,7 +537,8 @@ int32_t Analyzer::upDateVideoChannel(int chnId, char *imgData, ImgDesc_t imgDesc
     dstImage.hor_stride = targetObj->image.cols;
     dstImage.ver_stride = targetObj->image.rows;
     dstImage.rotation = HAL_TRANSFORM_ROT_0;
-    dstImage.pBuf = (void *)targetObj->image.data;
+    dstImage.fd = targetObj->dma.fd;
+    dstImage.pBuf = (void *)targetObj->dma.pBuffer;
     
     pthread_rwlock_wrlock(&targetObj->imgLock);
     srcImg_ConvertTo_dstImg(&dstImage, &srcImage);
@@ -424,19 +568,30 @@ vChnObject *Analyzer::getVideoChnObject(int chnId)
 
 vChnObject *Analyzer::createVideoChnObject(int32_t chnId, int32_t imgWidth, int32_t imgHeight)
 {
-    // 1. 创建通道对象
-    vChnObject* newChnObj = new vChnObject;
-    if(!newChnObj)
+    vChnObject *newChnObj = new vChnObject;
+    if (!newChnObj) {
         return NULL;
-    
-    // 2. 初始化图像数据读写锁
+    }
+
     pthread_rwlock_init(&newChnObj->imgLock, nullptr);
-    
-    // 3. 创建图像缓存
+
+    newChnObj->dma.pBuffer = NULL;
+    newChnObj->dma.fd = -1;
+    newChnObj->dma.size = imgWidth * imgHeight * 3;
+
+    if (alloc_dmabuf((size_t)newChnObj->dma.size, &newChnObj->dma.fd, &newChnObj->dma.pBuffer) != 0) {
+        fprintf(stderr, "alloc_dmabuf failed (%d bytes)\n", newChnObj->dma.size);
+        pthread_rwlock_destroy(&newChnObj->imgLock);
+        delete newChnObj;
+        return NULL;
+    }
+
     newChnObj->chnId = chnId;
-    newChnObj->image = Mat(imgHeight, imgWidth, CV_8UC3, Scalar(0, 255, 0));
+    /* Mat 复用 dma-buf mmap 内存，与 RGA importbuffer_fd 等一致 */
+    newChnObj->image = Mat(imgHeight, imgWidth, CV_8UC3, newChnObj->dma.pBuffer);
+    newChnObj->image.setTo(Scalar(0, 255, 0));
+
     memset(&newChnObj->chnResult, 0, sizeof(ChnResult_t));
-    
     return newChnObj;
 }
 
@@ -446,9 +601,15 @@ int32_t Analyzer::releaseVideoChnObject(vChnObject *pObj)
     if(NULL == pObj)
         return -1;
     
-    // 1. 销毁Mat资源（OpenCV会自动管理）
+    // 1. 销毁Mat资源（OpenCV会自动管理）和dma内存
     pthread_rwlock_wrlock(&pObj->imgLock);
     pObj->image.release();
+    if (pObj->dma.pBuffer && pObj->dma.size > 0) {
+        munmap(pObj->dma.pBuffer, pObj->dma.size);
+        pObj->dma.pBuffer = NULL;
+        pObj->dma.size = 0;
+        close(pObj->dma.fd);
+    }
     pthread_rwlock_unlock(&pObj->imgLock);
     
     // 2. 销毁读写锁
@@ -482,6 +643,17 @@ int analyzer_init(int32_t maxChn)
     algorithm_init();
 
     return 0;
+}
+
+void analyzer_exit()
+{
+    Analyzer *pAnalyzer = Analyzer::instance();
+    if(pAnalyzer){
+        delete pAnalyzer;
+    }
+    
+    // 模型初始化
+    algorithm_unInit();
 }
 
 int videoOutHandle(char *imgData, ImgDesc_t imgDesc)

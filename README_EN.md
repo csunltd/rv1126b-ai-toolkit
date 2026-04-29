@@ -23,6 +23,22 @@ How to use：
 
 important update log:
 ---
+> 2026-04-29 :
+> * Release EASY-EAI-Toolkit-1126B-0.1.0
+> * update easyeai-api
+>     * media_api
+>         * [update] display
+>         * [update] rga_wrapper
+> * update Demo
+>     * [new] media-display
+> * update Solution
+>     * [update] rtspIPCamera
+>     * [update] rtspMulitPlayer
+>     * [update] detect-Person
+>     * [new] app-bsd
+> * update UiSolution
+>     * [update] QDemo
+>
 > 2026-04-10 :
 > * Release EASY-EAI-Toolkit-1126B-0.0.9
 > * update easyeai-api

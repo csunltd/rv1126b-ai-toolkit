@@ -24,29 +24,23 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
+#include "display_pro.h"
+/** 特别注意:
+ * 1. display.h与display_pro.h里面的接口大部分是互斥的，除非特别说明，否则不建议混合调用。
+ */
 
-// 屏幕操作接口:
-int  screen_init(void);
-int  screen_info(int *width, int *height, int *refresh);
-void screen_exit(void);
-void set_uiLayer_on_top(bool onTop);
-void set_alpha_blend_mode(int mode); // [0:premultiplied, 1:Non-premultiplied]
-
-// 显示区域操作接口:
-typedef struct {
-	int x_off;
-	int y_off;
-    int width;
-	int height;
-} display_t;
-int disp_init(display_t *pDisplay);
-int uiLayer_init(display_t *pDisplay);
+// overlay层操作接口:
+int disp_init();
 void disp_release();
-void uiLayer_release();
+void window_commit(void *ptr/*default BGR888*/, int imgWidth, int imgHeight, int imgRotation);	//内部调用rga，需要加锁使用
 
-// windows操作接口:
-void window_commit(void *ptr/*default BGR888*/, int imgWidth, int imgHeight);
-void uiLayer_commit(void *ptr/*default BGR888*/, int imgWidth, int imgHeight);
+// primary层操作接口:
+int uiLayer_init();
+void uiLayer_release();
+void uiLayer_commit(void *ptr/*default BGR888*/, int imgWidth, int imgHeight);	//内部调用rga，需要加锁使用
+
+//调用此接口，overlay与primary层都会释放
+void disp_exit(void);
 
 #ifdef __cplusplus
 }

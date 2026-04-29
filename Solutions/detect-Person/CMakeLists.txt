@@ -31,6 +31,7 @@ include (${common_root}/system_opt/api.cmake)
 include (${common_root}/log_manager/api.cmake)
 include (${common_root}/font_engine/api.cmake)
 include (${meida_root}/rga/api.cmake)
+include (${meida_root}/display/api.cmake)
 include (${algorithm_root}/person_detect/api.cmake)
 ## api头文件路径
 set(api_inc 
@@ -39,6 +40,7 @@ set(api_inc
     ${LOGMANAGER_INCLUDE_DIRS} 
     ${FONTENGINE_INCLUDE_DIRS} 
     ${RGA_INCLUDE_DIRS} 
+    ${DISPLAY_INCLUDE_DIRS} 
     ${PERSON_DETECT_INCLUDE_DIRS} 
     )
 ## api源文件路径
@@ -52,6 +54,7 @@ file(GLOB api_srcs
 link_directories(
     ${LOGMANAGER_LIBS_DIRS} 
     ${FONTENGINE_LIBS_DIRS} 
+    ${DISPLAY_LIBS_DIRS} 
     ${PERSON_DETECT_LIBS_DIRS} 
 )
 ## api所依赖的库参数
@@ -61,6 +64,7 @@ set(sysLib_list
     ${LOGMANAGER_LIBS} 
     ${FONTENGINE_LIBS} 
     ${RGA_LIBS} 
+    ${DISPLAY_LIBS} 
     ${PERSON_DETECT_LIBS} 
     )
 # ======================== easyeai_api =========================
