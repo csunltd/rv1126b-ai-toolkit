@@ -7,14 +7,11 @@
 
 static bool g_Algorithm_is_NotReady = true;
 
-//static rknn_context gPersonCtx;
-static rknn_context gBSDCtx;
+//static rknn_context gBSDCtx;
 
 int algorithm_init()
 {
-	//person_detect_init(&gPersonCtx, "person_detect.model");
-	bsd_init(&gBSDCtx, "bsd_person.model");
-
+	//bsd_init(&gBSDCtx, "bsd_person.model");
 
     g_Algorithm_is_NotReady = false;
     return 0;
@@ -22,8 +19,7 @@ int algorithm_init()
 
 int algorithm_unInit()
 {
-	//person_detect_release(gPersonCtx);
-	bsd_release(gBSDCtx);
+	//bsd_release(gBSDCtx);
 	return 0;
 }
 
@@ -42,16 +38,11 @@ ChnResult_t algorithm_process(int chnId, Mat image)
     }
     // 目标检测正式开始:
     // ==========================================================================================
-	//ret = person_detect_run(gPersonCtx, image, &detect_result_group);
+	//ret = bsd_run(gBSDCtx, image, &detect_result_group);
     //if(0 != ret){
 	//	usleep(1000);
 	//	return chnResult;
     //}
-	ret = bsd_run(gBSDCtx, image, &detect_result_group);
-    if(0 != ret){
-		usleep(1000);
-		return chnResult;
-    }
     
 	resultNum = detect_result_group.count;
 	if(resultNum <= 0){

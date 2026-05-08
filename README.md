@@ -22,6 +22,14 @@
 
 重要更新：
 ---
+> 2026-05-08 :
+> * 发布 EASY-EAI-Toolkit-1126B-0.1.1
+> * 更新 easyeai-api
+>     * 多媒体组件api
+>         * [更新] display
+> * 新增【Api单例】
+>     * [新增] media-rga
+>
 > 2026-04-29 :
 > * 发布 EASY-EAI-Toolkit-1126B-0.1.0
 > * 更新 easyeai-api

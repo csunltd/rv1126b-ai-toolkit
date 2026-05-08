@@ -89,9 +89,10 @@ typedef struct display_dmabuf_frame {
 #endif
 } display_dmabuf_frame_t;
 /**
- * 单 plane 多窗口（单缓冲 drmBuff[0]）：
+ * 单 plane 多窗口：
  * window_commit_pro / uiLayer_commit_pro 仅把帧写入内部槽并标脏，不做 RGA。
- * window_refresh_pro / uiLayer_refresh_pro 内按 zpos 合成到同一缓冲（RGA blit），再 drm_commit 上屏。
+ * window_refresh_pro / uiLayer_refresh_pro 内按 zpos RGA 合成再 drm_commit。
+ * BUF_COUNT==1 时仅用 drmBuff[0]；BUF_COUNT>1 时在 drmBuff 间轮换，合成前整屏拷贝上一帧 fb，避免增量脏区与换缓冲不一致。
  */
 int window_commit_pro(int win_chn, const display_dmabuf_frame_t *frame);
 int window_refresh_pro(void);	//内部调用rga，需要加锁使用

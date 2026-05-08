@@ -11,5 +11,6 @@ set(RGA_INCLUDE_DIRS
 
 # c/c++ flags
 set(RGA_LIBS 
+    rga
     pthread 
     )
