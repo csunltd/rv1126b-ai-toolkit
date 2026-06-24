@@ -2,185 +2,186 @@
 <br/>
 
 
-[English](README_EN.md)
+[中文](README_CN.md)
 
 <br />
 <br />
 
-如果您初次接触本项目，您可以：  
-[查阅入门(快速上手)指南](https://www.easy-eai.com/document_details/27/1097)
+If you first come into contact with this project. You can do:  
+[reference the Quick Start Guide](https://www.easy-eai.com/document_details/27/1097)
 
-如果您具备丰富的嵌入式C语言开发经验，您可以：  
-[查阅EASYEAI开发实例](https://www.easy-eai.com/document_details/27/1150)  
-[查阅API开发手册](https://www.easy-eai.com/document_details/27/1132)
+If you have extensive experience in embedded C development. You can do:  
+[reference the EASYEAI development Example](https://www.easy-eai.com/document_details/27/1150)  
+[reference the API development manual](https://www.easy-eai.com/document_details/27/1132)
 
 
-使用方法：  
-[1] - 克隆本GitHub仓库   
-[2] - 进入具体的(demo/solution)目录执行：./build.sh   
-[3] - 则会在具体的(demo/solution)目录的Release/下生成相关的可执行程序
+How to use：  
+[1] - Clone this Git Storage to Local   
+[2] - Enter the corresponding (Demo/Solution) directory of this repository: ./build.sh   
+[3] - The relevant (Demo/Solution) will be generated under Release/ in the specific directory
 
-重要更新：
+
+important update log:
 ---
 > 2026-05-08 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.1.1
-> * 更新 easyeai-api
+> * Release EASY-EAI-Toolkit-1126B-0.1.1
+> * update easyeai-api
 >     * 多媒体组件api
->         * [更新] display
-> * 新增【Api单例】
->     * [新增] media-rga
+>         * [update] display
+> * update Demo
+>     * [new] media-rga
 >
 > 2026-04-29 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.1.0
-> * 更新 easyeai-api
->     * 多媒体组件api
->         * [更新] display
->         * [更新] rga_wrapper
-> * 新增【Api单例】
->     * [新增] media-display
-> * 更新【开发实例】
->     * [更新] rtspIPCamera
->     * [更新] rtspMulitPlayer
->     * [更新] detect-Person
->     * [新增] app-bsd
-> * 更新【UI开发实例】
->     * [更新] QDemo
+> * Release EASY-EAI-Toolkit-1126B-0.1.0
+> * update easyeai-api
+>     * media_api
+>         * [update] display
+>         * [update] rga_wrapper
+> * update Demo
+>     * [new] media-display
+> * update Solution
+>     * [update] rtspIPCamera
+>     * [update] rtspMulitPlayer
+>     * [update] detect-Person
+>     * [new] app-bsd
+> * update UiSolution
+>     * [update] QDemo
 >
 > 2026-04-10 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.9
-> * 更新 easyeai-api
->     * 算法组件api
->         * [新增] bsd
-> * 新增【Api单例】
->     * [新增] algorithm-bsd
+> * Release EASY-EAI-Toolkit-1126B-0.0.9
+> * update easyeai-api
+>     * algorithm_api
+>         * [new] bsd
+> * update Demo
+>     * [new] algorithm-bsd
 >
 > 2026-04-09 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.8
-> * 更新 easyeai-api
->     * 多媒体组件api
->         * [新增] display
-> * 更新【UI开发实例】
->     * [更新] QDemo
+> * Release EASY-EAI-Toolkit-1126B-0.0.8
+> * update easyeai-api
+>     * media_api
+>         * [new] display
+> * update UiSolution
+>     * [update] QDemo
 >
 > 2026-03-13 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.7
-> * 新增【开发实例】
->     * [更新] rtspMulitPlayer
->     * [新增] detect-Person
+> * Release EASY-EAI-Toolkit-1126B-0.0.7
+> * update Solution
+>     * [update] rtspMulitPlayer
+>     * [new] detect-Person
 >
 > 2026-02-01 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.6
-> * 更新 easyeai-api
->     * 算法组件api
->         * [新增] gestures
-> * 新增【Api单例】
->     * [新增] algorithm-gestures
+> * Release EASY-EAI-Toolkit-1126B-0.0.6
+> * update easyeai-api
+>     * algorithm_api
+>         * [new] gestures
+> * update Demo
+>     * [new] algorithm-gestures
 >
 > 2025-12-15 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.5
-> * 更新 easyeai-api
->     * 算法组件api
->         * [新增] face_landmark98
+> * Release EASY-EAI-Toolkit-1126B-0.0.5
+> * update easyeai-api
+>     * algorithm_api
+>         * [new] face_landmark98
 >
 > 2025-12-03 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.4
-> * 更新 easyeai-api
->     * 算法组件api
->         * [更新] person_detect
->         * [更新] helmet_detect
->         * [更新] fire_detect
->         * [更新] car_detect
->         * [新增] geometry
->     * 多媒体组件api
->         * [新增] jpeg
-> * 新增【开发实例】
->     * [新增] AOV(always on video)
+> * Release EASY-EAI-Toolkit-1126B-0.0.4
+> * update easyeai-api
+>     * algorithm_api
+>         * [update] person_detect
+>         * [update] helmet_detect
+>         * [update] fire_detect
+>         * [update] car_detect
+>         * [new] geometry
+>     * media_api
+>         * [new] jpeg
+> * update Solution
+>     * [new] AOV(always on video)
 >
 > 2025-11-10 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.3
-> * 更新 easyeai-api
->     * 算法组件api
->         * [新增] lpr
-> * 新增【Api单例】
->     * [新增] algorithm-lpr
+> * Release EASY-EAI-Toolkit-1126B-0.0.3
+> * update easyeai-api
+>     * algorithm_api
+>         * [new] lpr
+> * update Demo
+>     * [new] algorithm-lpr
 >
 > 2025-09-16 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.2
-> * 更新 easyeai-api
->     * 算法组件api
->         * [新增] car_detect
->         * [新增] face_detect
->         * [新增] face_recognition
->         * [新增] fire_detect
->         * [新增] helmet_detect
->         * [新增] ocr
->         * [新增] person_detect
->         * [新增] person_pose
->         * [新增] qrdecode
->         * [新增] speech_recognition
->     * 网络协议组件api
->         * [新增] mqtt
-> * 新增【Api单例】
->     * [新增] algorithm-car
->     * [新增] algorithm-face_detect
->     * [新增] algorithm-face_recognition
->     * [新增] algorithm-fire
->     * [新增] algorithm-helmet
->     * [新增] algorithm-ocr
->     * [新增] algorithm-person
->     * [新增] algorithm-person_pose
->     * [新增] algorithm-qrdecode
->     * [新增] algorithm-speech_recognition
->     * [新增] netProtocol-mqtt
+> * Release EASY-EAI-Toolkit-1126B-0.0.2
+> * update easyeai-api
+>     * algorithm_api
+>         * [new] car_detect
+>         * [new] face_detect
+>         * [new] face_recognition
+>         * [new] fire_detect
+>         * [new] helmet_detect
+>         * [new] ocr
+>         * [new] person_detect
+>         * [new] person_pose
+>         * [new] qrdecode
+>         * [new] speech_recognition
+>     * netProtocol_api
+>         * [new] mqtt
+> * update Demo
+>     * [new] algorithm-car
+>     * [new] algorithm-face_detect
+>     * [new] algorithm-face_recognition
+>     * [new] algorithm-fire
+>     * [new] algorithm-helmet
+>     * [new] algorithm-ocr
+>     * [new] algorithm-person
+>     * [new] algorithm-person_pose
+>     * [new] algorithm-qrdecode
+>     * [new] algorithm-speech_recognition
+>     * [new] netProtocol-mqtt
 >
 > 2025-09-09 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.1
-> * 更新 easyeai-api
->     * 通用组件api
->         * [移出] gst_opt
->         * [移出] http
->         * [更新] log_manager
->         * [移出] modbus
->         * [移出] rk_mpi
->     * 网络协议组件api
->         * [新增] http
->         * [新增] modbus
->     * 多媒体组件api
->         * [新增] gst_opt
->         * [新增] rk_mpi
->         * [新增] rga
-> * 新增【Api单例】
->     * [重命名] netProtocol-http
->     * [重命名] netProtocol-modbus
-> * 新增【开发实例】
->     * [新增] rtspMulitPlayer
+> * Release EASY-EAI-Toolkit-1126B-0.0.1
+> * update easyeai-api
+>     * common_api
+>         * [remove] gst_opt
+>         * [remove] http
+>         * [update] log_manager
+>         * [remove] modbus
+>         * [remove] rk_mpi
+>     * netProtocol_api
+>         * [new] http
+>         * [new] modbus
+>     * media_api
+>         * [new] gst_opt
+>         * [new] rk_mpi
+>         * [new] rga
+> * update Demo
+>     * [rename] netProtocol-http
+>     * [rename] netProtocol-modbus
+> * update Solution
+>     * [new] rtspMulitPlayer
 >
 > 2025-08-05 :
-> * 发布 EASY-EAI-Toolkit-1126B-0.0.0
-> * 更新 easyeai-api
->     * 通用组件api
->         * [新增] base64
->         * [新增] font_engine
->         * [新增] gst_opt
->         * [新增] http
->         * [新增] ini_wrapper
->         * [新增] ipc
->         * [新增] json
->         * [新增] log_manager
->         * [新增] modbus
->         * [新增] qrcode
->         * [新增] rk_mpi
->         * [新增] system_opt
-> * 新增【Api单例】
->     * [新增] common-base64
->     * [新增] common-font_engine
->     * [新增] common-http
->     * [新增] common-ini
->     * [新增] common-modbus
->     * [新增] common-qrcode
->     * [新增] common-system_opt
-> * 新增【开发实例】
->     * [新增] rtspIPCamera
+> * Release EASY-EAI-Toolkit-1126B-0.0.0
+> * update easyeai-api
+>     * common_api
+>         * [new] base64
+>         * [new] font_engine
+>         * [new] gst_opt
+>         * [new] http
+>         * [new] ini_wrapper
+>         * [new] ipc
+>         * [new] json
+>         * [new] log_manager
+>         * [new] modbus
+>         * [new] qrcode
+>         * [new] rk_mpi
+>         * [new] system_opt
+> * update Demo
+>     * [new] common-base64
+>     * [new] common-font_engine
+>     * [new] common-http
+>     * [new] common-ini
+>     * [new] common-modbus
+>     * [new] common-qrcode
+>     * [new] common-system_opt
+> * update Solution
+>     * [new] rtspIPCamera
 >
 > 2025-08-05 : 
-> * 创建本项目
+> * create this project
