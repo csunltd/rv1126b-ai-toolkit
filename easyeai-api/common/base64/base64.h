@@ -23,9 +23,9 @@
 extern "C" {
 #endif
 
-//注意：一般编码后的数据，比编码前的数据至少要多1/3，具体大小为输入数据大小以3对齐后的4/3
-//比如：
-//	输入数据长度为2，以3对齐后，则为3，再*4/3
+//注意：通常、エンコード後のデータはエンコード前より少なくとも 1/3 大きくなります。具体的なサイズは、入力データサイズを 3 バイト境界にアラインした後の 4/3 です
+//例：
+//	入力データ長が 2 の場合、3 バイト境界にアラインすると 3 になり、その後 *4/3 します
 extern int32_t base64_encode(char *out_data, const char* in_data, unsigned int in_len);
 extern int32_t base64_decode(char *out_data, unsigned int out_len, const char* encoded_string);
 

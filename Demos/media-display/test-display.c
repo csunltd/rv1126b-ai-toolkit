@@ -4,7 +4,7 @@
 
 #include "display.h"
 
-/* 读取固定的BGR测试图像，成功返回已分配缓冲区，失败返回NULL */
+/* 固定の BGR テスト画像を読み込みます。成功時は割り当て済みバッファを返し、失敗時は NULL を返します */
 static char *load_test_image(size_t *out_size)
 {
 #define IMAGE_PATH "720X1280.bgr"
@@ -40,30 +40,30 @@ static char *load_test_image(size_t *out_size)
 int main(int argc, char *argv[])
 {
     if(disp_init()){
-        fprintf(stderr, "display区域始化失败\n");
+        fprintf(stderr, "display 領域の初期化に失敗しました\n");
         return -2;        
     }
-    printf("成功初始化display区域，正在显示BGR测试图像...\n");
+    printf("display 領域の初期化に成功しました。BGR テスト画像を表示しています...\n");
     
-    // 加载图像数据
+    // 画像データを読み込みます
     size_t image_size = 0;
     char *pbuf = load_test_image(&image_size);
     if (!pbuf) {
         return -1;
     }
 
-    // 把图像显示在窗口里[采用拉伸缩放]
+    // 画像をウィンドウ内に表示します［引き伸ばしスケーリングを使用］
     window_commit(pbuf, 720, 1280, 0);
-    printf("按Ctrl+C退出\n");
+    printf("Ctrl+C を押すと終了します\n");
     
-    // 保持显示
+    // 表示を維持します
     while (1) {
-        // 可以考虑在这里更新图像内容
+        // ここで画像内容を更新することもできます
         sleep(1);
     }
 
     free(pbuf);
-    // disp_release(); //disp_exit();里已经包含了disp_release();动作
+    // disp_release(); //disp_exit();にはすでに含まれていますdisp_release();処理
 
     disp_exit();
     

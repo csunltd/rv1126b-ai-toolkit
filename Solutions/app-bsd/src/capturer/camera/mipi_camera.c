@@ -35,11 +35,11 @@
 
 #define PTRINT uint64_t
 #define CAM_MAX_NUM     4
-/* 宏定义 */
+/* マクロ定義 */
 #define BUF_COUNT       2
 
-#define FMT_TYPE_MAX_NUM 8 //每个camera最多[FMT_TYPE_MAX_NUM]种格式
-#define RES_MAX_NUM 8  //每种格式最多[RES_MAX_NUM]种分辨率
+#define FMT_TYPE_MAX_NUM 8 //各 camera は最大 [FMT_TYPE_MAX_NUM] 種類のフォーマットに対応します
+#define RES_MAX_NUM 8  //各フォーマットは最大 [RES_MAX_NUM] 種類の解像度に対応します
 typedef struct {
     int width;
     int height;
@@ -68,7 +68,7 @@ typedef struct {
     int out_format;
 } mipi_camera_t;
 
-/* 全局变量 */
+/* グローバル変数 */
 static mipi_camera_t mipiCam[CAM_MAX_NUM] = {0};
 
 static char *v4l2_fmt(uint32_t fmt)
@@ -136,14 +136,14 @@ static int v4l2_camera_init(mipi_camera_t *cam)
     sprintf(device, "/dev/video%d", cam->video_num);
     cam->buff_Type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    // 打开摄像头
+    // カメラを開きます
     int fd = open(device, O_RDWR | O_CLOEXEC);
     if (fd == -1) {
         printf("Error opening camera device[%s]\n", device);
         return -1;
     }
     
-    // 查询设备能力
+    // デバイス機能を照会します
     struct v4l2_capability cap;
     memset(&cap, 0, sizeof(cap));
     ret = ioctl(fd, VIDIOC_QUERYCAP, &cap);
@@ -176,7 +176,7 @@ static int v4l2_camera_init(mipi_camera_t *cam)
         printf("\tMPLANE\n");
     }
     
-    // 查询摄像头支持格式与分辨率列表
+    // カメラが対応するフォーマットおよび解像度の一覧を照会します
     camera_format_t cam_fmts[FMT_TYPE_MAX_NUM]={0};
     printf("Support format:\n");
     struct v4l2_fmtdesc fmtdesc; 
@@ -185,7 +185,7 @@ static int v4l2_camera_init(mipi_camera_t *cam)
     while(ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) != -1) {
         // fmt
         printf("\t%d.%s_(%s)[", fmtdesc.index+1, v4l2_fmt(fmtdesc.pixelformat), fmtdesc.description);
-        if(fmtdesc.index < FMT_TYPE_MAX_NUM) { //注意，这里越界可能会有bug，完美解决需要用链表
+        if(fmtdesc.index < FMT_TYPE_MAX_NUM) { //注意：ここで範囲外アクセスが発生するとバグになる可能性があります。完全に解決するにはリンクリストを使用する必要があります
             cam_fmts[fmtdesc.index].isValid = 1;
             cam_fmts[fmtdesc.index].format = fmtdesc.pixelformat;
         }
@@ -195,7 +195,7 @@ static int v4l2_camera_init(mipi_camera_t *cam)
         frmsize.pixel_format = fmtdesc.pixelformat;
         frmsize.index = 0;
         while(ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmsize) != -1) {
-            if(frmsize.index < RES_MAX_NUM) { //注意，这里越界可能会有bug，完美解决需要用链表
+            if(frmsize.index < RES_MAX_NUM) { //注意：ここで範囲外アクセスが発生するとバグになる可能性があります。完全に解決するにはリンクリストを使用する必要があります
                 cam_fmts[fmtdesc.index].res[frmsize.index].width = frmsize.stepwise.max_width;
                 cam_fmts[fmtdesc.index].res[frmsize.index].height = frmsize.stepwise.max_height;
             }
@@ -205,17 +205,17 @@ static int v4l2_camera_init(mipi_camera_t *cam)
         printf("]\n");
         fmtdesc.index++;
     }
-    cam->in_format = V4L2_PIX_FMT_NV12; //根据实际情况设置格式
+    cam->in_format = V4L2_PIX_FMT_NV12; //実際の状況に応じてフォーマットを設定します
     if(0 != get_max_resolution_by_format(cam_fmts, cam->in_format, &cam->in_width, &cam->in_height)){
         printf("can not get valid resolution from support list.\n");
         close(fd);
         return -1;
     }
     
-    // 获取摄像头当前参数
+    // カメラの現在パラメータを取得します
     struct v4l2_format vfmt;
     memset(&vfmt, 0, sizeof(vfmt));
-    vfmt.type = cam->buff_Type;   //设置类型摄像头采集
+    vfmt.type = cam->buff_Type;   //カメラキャプチャのタイプを設定します
 #if 0
     if(ioctl(fd, VIDIOC_G_FMT, &vfmt) < 0){
         perror("2. ioctl: VIDIOC_G_FMT fail");
@@ -268,12 +268,12 @@ static int v4l2_camera_init(mipi_camera_t *cam)
     printf(" raw_date: %s\n", tv_fmt.fmt.raw_data);
 #endif
 
-    // 申请一个拥有四个缓冲帧的缓冲区
+    // 4 つのバッファフレームを持つバッファ領域を確保します
     struct v4l2_requestbuffers req;
     memset(&req, 0, sizeof(req));
-    req.count  = BUF_COUNT; //RK的SDK至少需要申请3个缓冲区
-    req.type   = cam->buff_Type; // 缓冲帧数据格式
-    req.memory = V4L2_MEMORY_MMAP; //内存映射
+    req.count  = BUF_COUNT; //RK の SDK では少なくとも 3 つのバッファを確保する必要があります
+    req.type   = cam->buff_Type; // バッファフレームのデータ形式
+    req.memory = V4L2_MEMORY_MMAP; //メモリマップ
     if(ioctl(fd, VIDIOC_REQBUFS, &req) < 0) {
         perror("3. ioctl: VIDIOC_REQBUFS fail");
         close(fd);
@@ -284,21 +284,21 @@ static int v4l2_camera_init(mipi_camera_t *cam)
         struct v4l2_buffer mapbuffer;
 		struct v4l2_plane planes[FMT_NUM_PLANES] = {0};
 		memset(&mapbuffer, 0, sizeof(mapbuffer));
-        mapbuffer.index = n_buffers;                //buffer 序号
-        mapbuffer.type = cam->buff_Type;            //设置类型摄像头采集
-        mapbuffer.memory = V4L2_MEMORY_MMAP;        //内存映射  IO 方式，被应用程序设置
+        mapbuffer.index = n_buffers;                //buffer インデックス
+        mapbuffer.type = cam->buff_Type;            //カメラキャプチャのタイプを設定します
+        mapbuffer.memory = V4L2_MEMORY_MMAP;        //メモリマップ I/O 方式。アプリケーションにより設定されます
         //mapbuffer.memory = V4L2_MEMORY_USERPTR;
 	    if(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == mapbuffer.type){
 	        mapbuffer.m.planes = planes;
 	        mapbuffer.length = FMT_NUM_PLANES;
         }
-        // 查询序号为n_buffers 的缓冲区，得到其起始物理地址和大小
+        // インデックス n_buffers のバッファを照会し、開始物理アドレスとサイズを取得します
         if (-1 == ioctl (fd, VIDIOC_QUERYBUF, &mapbuffer)){
             printf("4. ioctl: VIDIOC_QUERYBUF(mmap %d buff from kernal) fail\n", n_buffers);
             close(fd);
             return -1;
         }
-        // 把通过ioctrl申请的内存地址映射到用户空间
+        // ioctl で確保したメモリアドレスをユーザー空間にマッピングします
 		if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ==  mapbuffer.type) {
             cam->size[n_buffers] = mapbuffer.m.planes[0].length;
             cam->mptr[n_buffers] = (uint8_t *)mmap(NULL, mapbuffer.m.planes[0].length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mapbuffer.m.planes[0].m.mem_offset);
@@ -306,23 +306,23 @@ static int v4l2_camera_init(mipi_camera_t *cam)
             cam->size[n_buffers] = mapbuffer.length;
             cam->mptr[n_buffers] = (uint8_t *)mmap(NULL, mapbuffer.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mapbuffer.m.offset);
 	    }
-        // 把映射失败的内存断开映射
+        // マッピングに失敗したメモリのマッピングを解除します
         if(MAP_FAILED == cam->mptr[n_buffers]) {
             printf("Fail to mmap[%d]\n", n_buffers);
             for(int i = n_buffers-1; i >= 0; i--){
                 printf("need to unmap [%d] buffer\n", i);
-    	        munmap(cam->mptr[i], cam->size[i]); // 断开映射
+    	        munmap(cam->mptr[i], cam->size[i]); // マッピングを解除します
             }
             close(fd);
             return -1;
         }
 
-        // 将缓冲帧放入队列
-        if(ioctl(fd, VIDIOC_QBUF, &mapbuffer) < 0) {   //【VIDIOC_QBUF】把帧放入队列；【VIDIOC_DQBUF】从队列中取出帧。
+        // バッファフレームをキューに投入します
+        if(ioctl(fd, VIDIOC_QBUF, &mapbuffer) < 0) {   //【VIDIOC_QBUF】フレームをキューに投入します；【VIDIOC_DQBUF】フレームをキューから取り出します。
             printf("5. ioctl: VIDIOC_QBUF(put %d buff to Queue) faild\n", n_buffers);
             for(int i = 0; i <= n_buffers; i++){
                 printf("need to unmap [%d] buffer\n", i);
-    	        munmap(cam->mptr[i], cam->size[i]); // 断开映射
+    	        munmap(cam->mptr[i], cam->size[i]); // マッピングを解除します
             }
             close(fd);
             return -1;
@@ -330,20 +330,20 @@ static int v4l2_camera_init(mipi_camera_t *cam)
         printf("usr_buf start= 0x%lx\n", (PTRINT)cam->mptr[n_buffers]); 
     }
 
-    //启动 或 停止数据流 VIDIOC_STREAMON， VIDIOC_STREAMOFF
-    //例：把四个缓冲帧放入队列，并启动数据流
+    //データストリームを開始または停止します VIDIOC_STREAMON， VIDIOC_STREAMOFF
+    //例：4 つのバッファフレームをキューに投入し、データストリームを開始します
     int type = cam->buff_Type;
     if(ioctl(fd, VIDIOC_STREAMON, &type) < 0) {
         printf("6. ioctl: VIDIOC_STREAMON fail\n");
         for(int i = 0; i<req.count; i++) {
             printf("need to unmap [%d] buffer\n", i);
-    	    munmap(cam->mptr[i], cam->size[i]); // 断开映射
+    	    munmap(cam->mptr[i], cam->size[i]); // マッピングを解除します
         }
         close(fd);
         return -1;
     }
     printf("\033[36m>>>>--start to capture video stream ...--<<<<\033[0m \n");
-    /* 启流后给 ISP/传感器一点时间，避免紧接着 DQBUF 在部分机型上长时间无帧 */
+    /* ストリーム開始後、ISP/センサーに少し時間を与え、直後の DQBUF で一部機種が長時間フレームなしになることを避けます */
     usleep(50000);
 
     return fd;
@@ -385,7 +385,7 @@ static void v4l2_camera_exit(mipi_camera_t *cam)
     close(cam->fd);
     cam->fd = 0;
 
-    //close完，要给点时间等待资源释放完毕，不然再次打开会概率出现buff读取卡死的情况。
+    //close 完了後はリソース解放を待つ時間を少し設けます。そうしないと再オープン時にバッファ読み取りが停止する可能性があります。
     usleep(500000);
 }
 
@@ -398,7 +398,7 @@ static int v4l2_camera_getframe(mipi_camera_t *cam, char *pbuf)
         return -1;
     }
     
-    //从队列中提取一帧数据
+    //キューから 1 フレーム分のデータを取り出します
     struct v4l2_buffer readbuffer;
     memset(&readbuffer, 0, sizeof(readbuffer));
     readbuffer.type = cam->buff_Type;
@@ -410,7 +410,7 @@ static int v4l2_camera_getframe(mipi_camera_t *cam, char *pbuf)
 		readbuffer.length = FMT_NUM_PLANES;
 	}
 
-    ret = ioctl(cam->fd, VIDIOC_DQBUF, &readbuffer); // 从队列中取出一个缓冲帧
+    ret = ioctl(cam->fd, VIDIOC_DQBUF, &readbuffer); // キューから 1 つのバッファフレームを取り出します
     if(ret < 0){
 		printf("error func:%s, line:%d\n", __func__, __LINE__);
         perror("get buffer form queue fail !");
@@ -423,8 +423,8 @@ static int v4l2_camera_getframe(mipi_camera_t *cam, char *pbuf)
 	else
 		buffSize = readbuffer.bytesused;
 #endif
-    // 把一帧数据送出去
-//===================================================== [rga转换] =====================================================
+    // 1 フレーム分のデータを出力します
+//===================================================== [RGA 変換] =====================================================
 	rga_info_t src;
 	memset(&src, 0, sizeof(rga_info_t));
 	src.fd = -1;
@@ -445,7 +445,7 @@ static int v4l2_camera_getframe(mipi_camera_t *cam, char *pbuf)
 	}
 //=====================================================================================================================
     
-    ret = ioctl(cam->fd, VIDIOC_QBUF, &readbuffer); // 用完以后把缓存帧放回队列中
+    ret = ioctl(cam->fd, VIDIOC_QBUF, &readbuffer); // 使用後、バッファフレームをキューに戻します
     if(ret < 0) {
 		printf("error func:%s, line:%d\n", __func__, __LINE__);
         perror("put buffer back to queue fail !");
@@ -464,7 +464,7 @@ static int v4l2_camera_getsrcframe(mipi_camera_t *cam, SrcFrame_t *pFrame)
         return -1;
     }
     
-    //从队列中提取一帧数据
+    //キューから 1 フレーム分のデータを取り出します
     memset(&pFrame->readbuffer, 0, sizeof(pFrame->readbuffer));
     pFrame->readbuffer.type = cam->buff_Type;
     pFrame->readbuffer.memory = V4L2_MEMORY_MMAP;
@@ -474,7 +474,7 @@ static int v4l2_camera_getsrcframe(mipi_camera_t *cam, SrcFrame_t *pFrame)
 		pFrame->readbuffer.length = MIPI_SRCFRAME_MAX_PLANES;
 	}
 
-    ret = ioctl(cam->fd, VIDIOC_DQBUF, &pFrame->readbuffer); // 从队列中取出一个缓冲帧
+    ret = ioctl(cam->fd, VIDIOC_DQBUF, &pFrame->readbuffer); // キューから 1 つのバッファフレームを取り出します
     if(ret < 0){
 		printf("error func:%s, line:%d\n", __func__, __LINE__);
         perror("get buffer form queue fail !");
@@ -487,8 +487,8 @@ static int v4l2_camera_getsrcframe(mipi_camera_t *cam, SrcFrame_t *pFrame)
 	else
 		buffSize = readbuffer.bytesused;
 #endif
-    // 把一帧数据送出去
-//===================================================== [把缓存格式化好放出去] =====================================================
+    // 1 フレーム分のデータを出力します
+//===================================================== [キャッシュを整形して出力します] =====================================================
     pFrame->pMapBuff = cam->mptr[pFrame->readbuffer.index];
     pFrame->width = cam->in_width;
     pFrame->height = cam->in_height;
@@ -509,7 +509,7 @@ static int v4l2_camera_putsrcframe(mipi_camera_t *cam, SrcFrame_t *pFrame)
         return -1;
     }
     
-    ret = ioctl(cam->fd, VIDIOC_QBUF, &pFrame->readbuffer); // 用完以后把缓存帧放回队列中
+    ret = ioctl(cam->fd, VIDIOC_QBUF, &pFrame->readbuffer); // 使用後、バッファフレームをキューに戻します
     if(ret < 0) {
 		printf("error func:%s, line:%d\n", __func__, __LINE__);
         perror("put buffer back to queue fail !");

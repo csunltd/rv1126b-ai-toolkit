@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	face_detect_run(ctx, image, result);
 
 	gettimeofday(&end,NULL);
-	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//微秒
+	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//マイクロ秒
 	printf("time_use is %f\n",time_use/1000);
 
 	printf("face num:%d\n", (int)result.size());

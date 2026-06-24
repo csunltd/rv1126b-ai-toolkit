@@ -13,7 +13,7 @@ if((NOT "${arch_value}" STREQUAL "armv7l") AND (NOT "${arch_value}" STREQUAL "aa
     include ($ENV{HOME}/configs/cross.cmake)
 endif()
 
-#若要使用${CMAKE_SYSROOT}变量，project必须要在set(CMAKE_TOOLCHAIN_FILE "${HOST_DIR}/share/buildroot/toolchainfile.cmake")后面设置
+#${CMAKE_SYSROOT} 変数を使用する場合、project は set(CMAKE_TOOLCHAIN_FILE "${HOST_DIR}/share/buildroot/toolchainfile.cmake") の後に設定する必要があります
 project(${CURRENT_FOLDER})
 add_definitions(-Wall -Wpointer-arith)
 # use c++ 11
@@ -42,7 +42,7 @@ set(media_root     ${toolkit_root}/media)
 
 include (${common_root}/system_opt/api.cmake)
 include (${media_root}/rkadk/api.cmake)
-## api头文件路径
+## API ヘッダーファイルパス
 set(api_inc 
     ${SYSOPT_INCLUDE_DIRS} 
     ${RKADK_INCLUDE_DIRS} 
@@ -51,12 +51,12 @@ set(api_inc
     ${CODEC_INCLUDE_DIRS} 
     ${RTSP_INCLUDE_DIRS} 
     )
-## api源文件路径
+## API ソースファイルパス
 file(GLOB api_srcs 
     ${SYSOPT_SOURCE_DIRS} 
     ${RKADK_SOURCE_DIRS} 
     )
-## api静态库文件路径
+## API 静的ライブラリファイルパス
 link_directories( 
     ${RKADK_LIBS_DIRS} 
     ${FQUEUE_LIBS_DIRS} 
@@ -64,7 +64,7 @@ link_directories(
     ${RTSP_LIBS_DIRS} 
     ${LOGMGR_LIBS_DIRS} 
 )
-## api所依赖的库参数
+## API が依存するライブラリパラメータ
 set(sysLib_list 
     ${SYSOPT_LIBS} 
     ${RKADK_LIBS} 
@@ -77,7 +77,7 @@ set(sysLib_list
 
 # ========================== custom ============================
 # solution project
-## 在/usr/share/cmake-3.18/Modules/目录下的Find*.cmake，都能通过这种方式被找到
+## /usr/share/cmake-3.18/Modules/ ディレクトリ配下の Find*.cmake は、この方法で検索できます
 #find_package(OpenCV REQUIRED)
 if(USE_RKAIQ)
     #find_package(RkAiq REQUIRED)
@@ -89,27 +89,27 @@ if(USE_RKAIQ)
     add_definitions(-DRKAIQ)
 endif()
 
-## 在/usr/lib/aarch64-linux-gnu/pkgconfig/下的pc文件，都可以通过这种方式查找
-## 用法：
+## /usr/lib/aarch64-linux-gnu/pkgconfig/ 配下の .pc ファイルは、この方法で検索できます
+## 使用方法：
 ## find_package(PkgConfig)
 ## pkg_search_module(<prefix> REQUIRED [xxxx])
 ## pkg_search_module(<prefix1> REQUIRED [xxxx])
 ## pkg_search_module(<prefix2> REQUIRED [xxxx] [xxxxxxxxxxx])
-## 备注：
-##   <prefix>_FOUND：如果找到模块，此变量为1
-##   <prefix>_LIBRARIES：模块的链接库名称（不包含-l）
-##   <prefix>_LINK_LIBRARIES：模块的链接库名称（包含绝对路径）
-##   <prefix>_LIBRARY_DIRS：模块的链接库路径（不包含-L）
-##   <prefix>_INCLUDE_DIRS：模块的头文件路径（不包含-I）
-##   <prefix>_LDFLAGS：链接flags
-##   <prefix>_LDFLAGS_OTHER：额外的链接flags
-##   <prefix>_CFLAGS：所有的编译器cflags
-##   <prefix>_CFLAGS_OTHER：其他的编译器cflags
-## pkg_check_modules 和 pkg_search_module 的异/同：
-##   同：功能都是相同的，而且都能搜索多个模块，如：pkg_check_modules(AAAAA REQUIRED libxml-2.0 libxml2 libxml>=2)
-##   异：
-##       pkg_check_modules: 必须所有模块都存在，才能生效
-##       pkg_search_module: 只要第一个模块存在，就能生效
+## 備考：
+##   <prefix>_FOUND：モジュールが見つかった場合、この変数は 1 になります
+##   <prefix>_LIBRARIES：モジュールのリンクライブラリ名（-l を含みません）
+##   <prefix>_LINK_LIBRARIES：モジュールのリンクライブラリ名（絶対パスを含みます）
+##   <prefix>_LIBRARY_DIRS：モジュールのリンクライブラリパス（-L を含みません）
+##   <prefix>_INCLUDE_DIRS：モジュールのヘッダーファイルパス（-I を含みません）
+##   <prefix>_LDFLAGS：リンク flags
+##   <prefix>_LDFLAGS_OTHER：追加のリンク flags
+##   <prefix>_CFLAGS：すべてのコンパイラ cflags
+##   <prefix>_CFLAGS_OTHER：その他のコンパイラ cflags
+## pkg_check_modules と pkg_search_module の相違点／共通点：
+##   共通点：機能は同じで、複数のモジュールを検索できます。例：pkg_check_modules(AAAAA REQUIRED libxml-2.0 libxml2 libxml>=2)
+##   相違点：
+##       pkg_check_modules: すべてのモジュールが存在する場合にのみ有効です
+##       pkg_search_module: 最初のモジュールが存在すれば有効です
 
 #find_package(PkgConfig)
 #pkg_check_modules(GTK3 REQUIRED gtk+-3.0)

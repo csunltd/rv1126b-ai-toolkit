@@ -22,14 +22,14 @@
 extern "C"{
 #endif
 
-// 创建一块DMA-BUF，用于加速rga处理
+// RGA 処理を高速化するための DMA-BUF を作成します
 int alloc_dmabuf(size_t dma_size, int *dma_fd, void **pBuf_Map);
-// 缓存同步，将CPU缓存中的数据同步到设备，每通过mmap修改后，都需要这样同步进去
+// キャッシュ同期。CPU キャッシュ内のデータをデバイスへ同期します。mmap で変更するたびに、この方法で同期する必要があります
 int dma_sync_cpu_to_device(int fd);
 
 /* rotate source image 0 degrees clockwise */
 #define HAL_TRANSFORM_ROT_0      0x00
-#if 0 // ---此组定义已写在<rga/RgaApi.h>中
+#if 0 // ---この定義群はすでに <rga/RgaApi.h> に記述されています
 /* flip source image horizontally (around the vertical axis) */
 #define HAL_TRANSFORM_FLIP_H     0x01
 /* flip source image vertically (around the horizontal axis)*/

@@ -33,9 +33,9 @@ struct qrcode_info {
 };
 
 /* 
- * 二维码检测运行函数
- * src:输入参数, Opencv Mat格式图像
- * p_info：输出参数, 二维码检测的结果输出
+ * QR コード検出実行関数
+ * src:入力パラメータ, Opencv Mat形式画像
+ * p_info：出力パラメータ, QR コード検出結果出力
  */
 int qr_decode(cv::Mat src, struct qrcode_info *p_info);
 

@@ -15,7 +15,7 @@
 #ifndef CVX_TEXT_H
 #define CVX_TEXT_H
  
-// 支持OpenCV中文汉字输入
+// OpenCV の中国語漢字入力に対応
  
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -25,17 +25,17 @@
 class CvxText {
 public:
     /**
-    * 装载字库文件
+    * フォントライブラリファイルを読み込みます
     */
     CvxText(const char* freeType);
     virtual ~CvxText();
  
     /**
-    * 获取字体.目前有些参数尚不支持.
+    * フォントを取得します。現在、一部のパラメータは未対応です。
     *
-    * \param font        字体类型, 目前不支持
-    * \param size        字体大小/空白比例/间隔比例/旋转角度
-    * \param underline   下画线
+    * \param font        フォントタイプ。現在は未対応です
+    * \param size        フォントサイズ／空白比率／間隔比率／回転角度
+    * \param underline   下線
     * \param diaphaneity 透明度
     *
     * \sa setFont, restoreFont
@@ -43,11 +43,11 @@ public:
     void getFont(int* type, cv::Scalar* size=nullptr, bool* underline=nullptr, float* diaphaneity=nullptr);
  
     /**
-    * 设置字体.目前有些参数尚不支持.
+    * フォントを設定します。現在、一部のパラメータは未対応です。
     *
-    * \param font        字体类型, 目前不支持
-    * \param size        字体大小/空白比例/间隔比例/旋转角度
-    * \param underline   下画线
+    * \param font        フォントタイプ。現在は未対応です
+    * \param size        フォントサイズ／空白比率／間隔比率／回転角度
+    * \param underline   下線
     * \param diaphaneity 透明度
     *
     * \sa getFont, restoreFont
@@ -55,68 +55,68 @@ public:
     void setFont(int* type, cv::Scalar* size=nullptr, bool* underline=nullptr, float* diaphaneity=nullptr);
  
     /**
-    * 恢复原始的字体设置.
+    * 元のフォント設定に戻します.
     *
     * \sa getFont, setFont
     */
     void restoreFont();
  
     /**
-    * 输出汉字(颜色默认为黑色).遇到不能输出的字符将停止.
+    * 漢字を出力します（デフォルト色は黒）。出力できない文字に遭遇すると停止します。
     *
-    * \param img  输出的影象
-    * \param text 文本内容
-    * \param pos  文本位置
+    * \param img  出力画像
+    * \param text テキスト内容
+    * \param pos  テキスト位置
     *
-    * \return 返回成功输出的字符长度，失败返回-1.
+    * \return 成功時は出力文字長を返し、失敗時は -1 を返します。
     */
     int putText(cv::Mat& img, char* text, cv::Point pos);
  
     /**
-    * 输出汉字(颜色默认为黑色).遇到不能输出的字符将停止.
+    * 漢字を出力します（デフォルト色は黒）。出力できない文字に遭遇すると停止します。
     *
-    * \param img  输出的影象
-    * \param text 文本内容
-    * \param pos  文本位置
+    * \param img  出力画像
+    * \param text テキスト内容
+    * \param pos  テキスト位置
     *
-    * \return 返回成功输出的字符长度，失败返回-1.
+    * \return 成功時は出力文字長を返し、失敗時は -1 を返します。
     */
     int putText(cv::Mat& img, const wchar_t* text, cv::Point pos);
  
     /**
-    * 输出汉字.遇到不能输出的字符将停止.
+    * 漢字を出力します。出力できない文字に遭遇すると停止します。
     *
-    * \param img   输出的影象
-    * \param text  文本内容
-    * \param pos   文本位置
-    * \param color 文本颜色
+    * \param img   出力画像
+    * \param text  テキスト内容
+    * \param pos   テキスト位置
+    * \param color テキスト色
     *
-    * \return 返回成功输出的字符长度，失败返回-1.
+    * \return 成功時は出力文字長を返し、失敗時は -1 を返します。
     */
     int putText(cv::Mat& img, const char* text, cv::Point pos, cv::Scalar color);
  
     /**
-    * 输出汉字.遇到不能输出的字符将停止.
+    * 漢字を出力します。出力できない文字に遭遇すると停止します。
     *
-    * \param img   输出的影象
-    * \param text  文本内容
-    * \param pos   文本位置
-    * \param color 文本颜色
+    * \param img   出力画像
+    * \param text  テキスト内容
+    * \param pos   テキスト位置
+    * \param color テキスト色
     *
-    * \return 返回成功输出的字符长度，失败返回-1.
+    * \return 成功時は出力文字長を返し、失敗時は -1 を返します。
     */
     int putText(cv::Mat& img, const wchar_t* text, cv::Point pos, cv::Scalar color);
  
 private:
     // 禁止copy
     CvxText& operator=(const CvxText&);
-    // 输出当前字符, 更新m_pos位置
+    // 現在の文字を出力し、m_pos 位置を更新します
     void putWChar(cv::Mat& img, wchar_t wc, cv::Point& pos, cv::Scalar color);
  
-    FT_Library   m_library;   // 字库
-    FT_Face      m_face;      // 字体
+    FT_Library   m_library;   // フォントライブラリ
+    FT_Face      m_face;      // フォント
  
-    // 默认的字体输出参数
+    // デフォルトのフォント出力パラメータ
     int         m_fontType;
     cv::Scalar  m_fontSize;
     bool        m_fontUnderline;

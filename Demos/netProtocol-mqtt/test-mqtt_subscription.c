@@ -3,36 +3,36 @@
 #include <string.h>
 #include <mosquitto.h>
 
-#define BROKER_ADDRESS "localhost"  // 定义broker地址
-#define PORT 1883                   // 定义broker端口号
-#define KEEP_ALIVE 60               // 定义keepalive时间
+#define BROKER_ADDRESS "localhost"  // broker アドレスを定義します
+#define PORT 1883                   // broker ポート番号を定義します
+#define KEEP_ALIVE 60               // keepalive 時間を定義します
 
 struct mosquitto *mosq = NULL;
 
 void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
     if (rc) {
-        printf("连接失败： %s\n", mosquitto_connack_string(rc));
+        printf("接続に失敗しました： %s\n", mosquitto_connack_string(rc));
     } else {
-        printf("连接成功\n");
+        printf("接続に成功しました\n");
     }
 }
 
 void on_disconnect(struct mosquitto *mosq, void *userdata, int rc) {
-    printf("断开连接\n");
+    printf("接続を切断しました\n");
 }
 
 void on_publish(struct mosquitto *mosq, void *userdata, int mid) {
-    printf("消息发送成功，mid=%d\n", mid);
+    printf("メッセージ送信に成功しました，mid=%d\n", mid);
 }
 
 void on_subscribe(struct mosquitto *mosq, void *userdata, int mid, int qos_count, const int *granted_qos) {
-    printf("订阅成功\n");
+    printf("購読に成功しました\n");
 }
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
-    printf("收到消息：\n");
-    printf("主题： %s\n", message->topic);
-    printf("消息： %s\n", (char*)message->payload);
+    printf("メッセージを受信しました：\n");
+    printf("トピック： %s\n", message->topic);
+    printf("メッセージ： %s\n", (char*)message->payload);
 }
 
 int main(int argc, char *argv[]) {
@@ -41,41 +41,41 @@ int main(int argc, char *argv[]) {
     char *topic02 = "test/Easy-Eai-02";
     int qos = 1;
 
-    mosquitto_lib_init();   // 初始化mosquitto库
+    mosquitto_lib_init();   // mosquitto ライブラリを初期化します
 
-    mosq = mosquitto_new("subsrciption_cliend", true, NULL);   // 创建一个新的mosquitto客户端
+    mosq = mosquitto_new("subsrciption_cliend", true, NULL);   // 新しい mosquitto クライアントを作成します
     if (!mosq) {
-        fprintf(stderr, "创建客户端失败\n");
+        fprintf(stderr, "クライアントの作成に失敗しました\n");
         goto cleanup;
     }
 
-    // 设置回调函数
+    // コールバック関数を設定します
     mosquitto_connect_callback_set(mosq, on_connect);
     mosquitto_disconnect_callback_set(mosq, on_disconnect);
     mosquitto_publish_callback_set(mosq, on_publish);
     mosquitto_subscribe_callback_set(mosq, on_subscribe);
     mosquitto_message_callback_set(mosq, on_message);
 
-    // 连接到broker
+    // broker に接続します
     rc = mosquitto_connect(mosq, BROKER_ADDRESS, PORT, KEEP_ALIVE);
     if (rc != MOSQ_ERR_SUCCESS) {
-        fprintf(stderr, "连接失败: %s\n", mosquitto_strerror(rc));
+        fprintf(stderr, "接続に失敗しました: %s\n", mosquitto_strerror(rc));
         goto cleanup;
     }
 
-    // 订阅主题
+    // トピックを購読します
     rc = mosquitto_subscribe(mosq, NULL, topic01, qos);
     if (rc != MOSQ_ERR_SUCCESS) {
-        fprintf(stderr, "订阅失败: %s\n", mosquitto_strerror(rc));
+        fprintf(stderr, "購読に失敗しました: %s\n", mosquitto_strerror(rc));
         goto cleanup;
     }
 
     rc = mosquitto_subscribe(mosq, NULL, topic02, qos);
     if (rc != MOSQ_ERR_SUCCESS) {
-        fprintf(stderr, "订阅失败: %s\n", mosquitto_strerror(rc));
+        fprintf(stderr, "購読に失敗しました: %s\n", mosquitto_strerror(rc));
         goto cleanup;
     }
-    //循环回调接收消息
+    //コールバックをループ実行してメッセージを受信します
     mosquitto_loop_forever(mosq, -1, 1);
 
 cleanup:

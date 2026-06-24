@@ -47,42 +47,42 @@ typedef struct{
     int32_t bottom; //y2
 }s32Rect_t;
 
-/* 功能：判断点是否在矩形内
+/* 機能：点が矩形内にあるか判定します
  * 
  */
 extern bool point_in_rect(s32Point_t point, s32Rect_t rect);
 
-/* 功能：计算矩形面积
+/* 機能：矩形の面積を計算します
  * 
  */
 extern int32_t calc_rect_square(s32Rect_t rect);
 
-/* 功能：找出面积较小矩形
+/* 機能：面積が小さい矩形を取得します
  * 
  */
 extern s32Rect_t min_rect(s32Rect_t rect1, s32Rect_t rect2);
 
-/* 功能：找出面积较大矩形
+/* 機能：面積が大きい矩形を取得します
  * 
  */
 extern s32Rect_t max_rect(s32Rect_t rect1, s32Rect_t rect2);
 
-/* 功能：判断矩形是否相交或相切
+/* 機能：矩形同士が交差または接しているか判定します
  * 
  */
 extern bool rect_is_intersect(s32Rect_t rect1, s32Rect_t rect2);
 
-/* 功能：计算两矩形相交部分面积(若相切，面积也为0)
+/* 機能：2 つの矩形の交差部分の面積を計算します（接しているだけの場合、面積も 0 です）
  * 
  */
 extern int32_t calc_rect_intersect_square(s32Rect_t rect1, s32Rect_t rect2);
 
-/* 功能：计算[两矩形相交部分面积]与[小矩形面积]之比
+/* 機能：［2 つの矩形の交差部分の面積］と［小さい矩形の面積］の比率を計算します
  * 
  */
 extern double calc_intersect_of_min_rect(s32Rect_t rect1, s32Rect_t rect2);
 
-/* 功能：计算两矩形的交并比
+/* 機能：2 つの矩形の IoU を計算します
  * 
  */
 extern double calc_intersect_of_union(s32Rect_t rect1, s32Rect_t rect2);

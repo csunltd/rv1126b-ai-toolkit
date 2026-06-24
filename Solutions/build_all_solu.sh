@@ -47,7 +47,7 @@ main() {
 		exit 0
 	fi
 	
-	### 编译所有demo
+	### すべてのデモをビルドします
 	for var in ${allsolu[@]}
 	do
 		if [ -e $var/build.sh ]; then

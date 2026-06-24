@@ -13,7 +13,7 @@ if((NOT "${arch_value}" STREQUAL "armv7l") AND (NOT "${arch_value}" STREQUAL "aa
     include ($ENV{HOME}/configs/cross.cmake)
 endif()
 
-#若要使用${CMAKE_SYSROOT}变量，project必须要在set(CMAKE_TOOLCHAIN_FILE "${HOST_DIR}/share/buildroot/toolchainfile.cmake")后面设置
+#${CMAKE_SYSROOT} 変数を使用する場合、project は set(CMAKE_TOOLCHAIN_FILE "${HOST_DIR}/share/buildroot/toolchainfile.cmake") の後に設定する必要があります
 project(${CURRENT_FOLDER})
 add_definitions(-Wall -Wpointer-arith)
 # use c++ 11
@@ -27,22 +27,22 @@ set(media_root     ${toolkit_root}/media)
 
 include (${common_root}/system_opt/api.cmake)
 include (${media_root}/rga/api.cmake)
-## api头文件路径
+## API ヘッダーファイルパス
 set(api_inc 
     ${CMAKE_SYSROOT}/usr/include/opencv4/ 
     ${SYSOPT_INCLUDE_DIRS} 
     ${RGA_INCLUDE_DIRS} 
     )
-## api源文件路径
+## API ソースファイルパス
 file(GLOB api_srcs 
     ${SYSOPT_SOURCE_DIRS} 
     ${RGA_SOURCE_DIRS} 
 #    ./*.c ./*.cpp 
     )
-## api静态库文件路径
+## API 静的ライブラリファイルパス
 #set(staticLib_objs 
 #    )
-## 依赖的动态库文件
+## 依存する共有ライブラリファイル
 set(sysLib_list 
     opencv_core 
     opencv_imgproc 

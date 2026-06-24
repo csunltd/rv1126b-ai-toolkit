@@ -17,7 +17,7 @@ int main(void)
 	base64_decode(src_string, sizeof(src_string), base64_data);
 	printf("source string : %s\n", src_string);
 
-	//用于验证即便数据中间有0x00，还原出来的数据也不会从0x00处断掉
+	//データの途中に 0x00 が含まれていても、復元後のデータが 0x00 で途切れないことを検証するために使用します
 	char num_data[8] = {0x67, 0x88, 0x70, '\0', '\r', '\n', 0x73, 0x73};
 	char decode_data[8] = {0};
 	memset(base64_data, 0, sizeof(base64_data));

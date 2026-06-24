@@ -17,17 +17,17 @@ using namespace std;
 
 static int get_local_Ip(const char *interface, char *strIP)
 {
-    // 创建套接字
+    // ソケットを作成します
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
         perror("socket");
         return -1;
     }
 
-    // 指定网络接口名称
+    // ネットワークインターフェース名を指定します
     struct ifreq ifr;
     strncpy(ifr.ifr_name, interface, IFNAMSIZ);
-    // 获取IP地址
+    // IP アドレスを取得します
     if (ioctl(sockfd, SIOCGIFADDR, &ifr) < 0) {
         perror("ioctl");
         close(sockfd);
@@ -59,10 +59,10 @@ mainWidget::mainWidget(QWidget *parent) :
     mpTextLab(NULL),
     ui(new Ui::Widget)
 {
-    //设置为：取消窗口边框
+    //設定：ウィンドウ枠を非表示にします
     //setWindowFlag(Qt::FramelessWindowHint, true);
 
-    //设置为：背景透明
+    //設定：背景を透明にします
     QPalette pal(this->palette());
     pal.setColor(QPalette::Background, Qt::transparent);
     setAutoFillBackground(true);
@@ -81,7 +81,7 @@ mainWidget::~mainWidget()
 void mainWidget::init()
 {
     layout = new QHBoxLayout();
-    layout->setContentsMargins(0, 0, 0, 0);//注意这里设置了所有参数页面的边框
+    layout->setContentsMargins(0, 0, 0, 0);//ここではすべてのパラメータページの余白を設定しています
 
     //left
     ui->mpDateLab->setStyleSheet("QLabel { font: 24px 'Ubuntu'; color: rgb(245, 245, 245); background-color: transparent; }");
@@ -104,7 +104,7 @@ void mainWidget::init()
     //QFont font("Microsoft YaHei", 12, 87);
     //mpTextLab->setFont(font);
     mpTextLab->setAlignment(Qt::AlignCenter);
-    mpTextLab->setText(QString("欢迎使用easyeai_api"));
+    mpTextLab->setText(QString("easyeai_api へようこそ"));
     layout->addWidget(mpTextLab);
     ui->mpMainPage->setLayout(layout);
 }
@@ -139,25 +139,25 @@ void mainWidget::updateSysDateTime()
     strWeek.clear();
     switch (m_dateWeek) {
     case 1:
-        strWeek.append("星期一");
+        strWeek.append("月曜日");
         break;
     case 2:
-        strWeek.append("星期二");
+        strWeek.append("火曜日");
         break;
     case 3:
-        strWeek.append("星期三");
+        strWeek.append("水曜日");
         break;
     case 4:
-        strWeek.append("星期四");
+        strWeek.append("木曜日");
         break;
     case 5:
-        strWeek.append("星期五");
+        strWeek.append("金曜日");
         break;
     case 6:
-        strWeek.append("星期六");
+        strWeek.append("土曜日");
         break;
     case 7:
-        strWeek.append("星期日");
+        strWeek.append("日曜日");
         break;
     default:
         break;
@@ -184,7 +184,7 @@ void mainWidget::updateSysIpParam()
     ipAddress.clear();
 
     char ip[INET_ADDRSTRLEN]={0};
-    msleep(200);    //读取ip前等到一段时间，避免未设好IP(需要一段等待时间)就马上读取的情况
+    msleep(200);    //IP を読み込む前に少し待機し、IP 設定が完了する前にすぐ読み込まれることを避けます
     if(0 != get_local_Ip("eth0", ip))
         return ;
 

@@ -48,14 +48,14 @@ int main(int argc, char **argv)
     const char *model_path = argv[1];
     const char *image_path = argv[2];
 
-	/* 参数初始化 */
+	/* パラメータ初期化 */
 	detect_result_group_t detect_result_group;
 
-	/* 算法模型初始化 */
+	/* アルゴリズムモデル初期化 */
 	rknn_context ctx;
 	helmet_detect_init(&ctx, model_path);
 
-	/* 算法运行 */
+	/* アルゴリズム実行 */
 	cv::Mat src;
 	src = cv::imread(image_path, 1);
 
@@ -68,10 +68,10 @@ int main(int argc, char **argv)
 	helmet_detect_run(ctx, src, &detect_result_group);
 
 	gettimeofday(&end,NULL);
-	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//微秒
+	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//マイクロ秒
 	printf("time_use is %f\n",time_use/1000);
 
-	/* 算法结果在图像中画出并保存 */
+	/* アルゴリズム結果を画像上に描画して保存します */
 	// Draw Objects
 	char text[256];
 	for (int i = 0; i < detect_result_group.count; i++) 
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 	cv::imwrite("result.jpg", src);	
 
 
-	/* 算法模型空间释放 */
+	/* アルゴリズムモデルのリソースを解放します */
 	helmet_detect_release(ctx);
 
 	return 0;

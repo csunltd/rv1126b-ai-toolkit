@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	src_1 = cv::imread(argv[1], 1);
 	src_2 = cv::imread(argv[2], 1);
 
-	/* 人脸检测初始化 */	
+	/* 顔検出を初期化します */	
 	printf("face detect init!\n");
 	ret = face_detect_init(&detect_ctx, "./face_detect.model");
 	if( ret < 0)
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	/* 人脸识别初始化 */
+	/* 顔認識を初期化します */
 	printf("face recognition init!\n");
 	ret =  face_recognition_init(&recognition_ctx, "./face_recognition.model");
 	if( ret < 0)
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	/* 人脸检测执行 */
+	/* 顔検出を実行します */
 	face_detect_run(detect_ctx, src_1, result1);
 	face_detect_run(detect_ctx, src_2, result2);
 
@@ -74,13 +74,13 @@ int main(int argc, char **argv)
 	face_algin_2 = face_alignment(src_2, points2);
 
 
-	/* 人脸识别执行 */
+	/* 顔認識を実行します */
 	float feature_1[512], feature_2[512];
 
 	gettimeofday(&start,NULL); 
 	face_recognition_run(recognition_ctx, &face_algin_1, &feature_1);
 	gettimeofday(&end,NULL);
-	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//微秒
+	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//マイクロ秒
 	printf("time_use is %f\n",time_use/1000);
 
 	face_recognition_run(recognition_ctx, &face_algin_2, &feature_2);
@@ -91,10 +91,10 @@ int main(int argc, char **argv)
 
 	printf("similarity:%f\n", similarity);	
 
-	/* 人脸检测释放 */
+	/* 顔検出を解放します */
 	face_detect_release(detect_ctx);
 
-	/* 人脸识别释放 */
+	/* 顔認識を解放します */
 	face_recognition_release(recognition_ctx);
 
 	return 0;

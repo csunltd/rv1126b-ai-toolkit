@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 // IPC
-#define IPCSERVER_PORT 7000 //IPC服务器占用端口(注意：此值仅用于开发参考，不可以对其进行修改)
+#define IPCSERVER_PORT 7000 //IPC サーバーが使用するポート（注意：この値は開発時の参考用であり、変更しないでください）
 typedef struct {
     char msgHeader[8];
     int32_t srcClientId;

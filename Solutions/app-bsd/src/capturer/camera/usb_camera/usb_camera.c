@@ -37,7 +37,7 @@
 
 #define CAMERA_NUM 64
 #define BUFFER_COUNT 4
-//摄像头不支持输入分辨率时默认设置此分辨率
+//カメラが入力解像度をサポートしない場合、この解像度をデフォルトとして設定します
 #define	CAM_INIT_WIDTH	1280
 #define	CAM_INIT_HEIGHT	720
 #define	DEFAULT_OUTPUT_FMT	RK_FORMAT_BGR_888
@@ -340,7 +340,7 @@ static int do_usbcamera_getframe(usb_camera* cam, char *pbuf)
 	vpu_decode_jpeg_doing(&cam->decode, cam->map_buf[buf.index].start, buf.bytesused,
                               cam->dec_fd, cam->dec_bo.ptr);
 
-	//rv1126平台解压format一般都是MPP_FMT_YUV422SP
+	//RV1126 プラットフォームのデコード format は通常 MPP_FMT_YUV422SP です
 	dec_fmt = (cam->decode.fmt == MPP_FMT_YUV422SP ? RK_FORMAT_YCbCr_422_SP : RK_FORMAT_YCbCr_420_SP);
 
 	memset(&src, 0, sizeof(rga_info_t));
@@ -460,7 +460,7 @@ static usb_camera *do_usbcamera_init(int vIndex, int width, int height, RgaSURF_
 		}
 	}
 
-	//这里执行完驱动有可能会更新分辨率
+	//ここで実行後、ドライバによって解像度が更新される可能性があります
 	if (set_fmt(new_camera->fd, &new_camera->init_width, &new_camera->init_height)) {
 		printf("%s: %d exit!\n", __func__, __LINE__);
 		goto error2;

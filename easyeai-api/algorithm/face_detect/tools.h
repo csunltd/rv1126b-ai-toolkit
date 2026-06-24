@@ -6,15 +6,15 @@
 
 struct Transform_info
 {
-    int src_width;          //原图宽度
-    int src_height;         //原图高度
-    int target_width;       //目标宽度
-    int target_height;      //目标高度
-    int top;                //顶部补充像素数目
-    int bottom;             //底部补充像素数目
-    int left;               //左端补充像素数目
-    int right;              //右端补充像素数目
-    float ratio;            //缩放比例, src_width/target_width
+    int src_width;          //元画像幅
+    int src_height;         //元画像高さ
+    int target_width;       //ターゲット幅
+    int target_height;      //ターゲット高さ
+    int top;                //上部に追加するピクセル数
+    int bottom;             //下部に追加するピクセル数
+    int left;               //左側に追加するピクセル数
+    int right;              //右側に追加するピクセル数
+    float ratio;            //缩放比率, src_width/target_width
 };
 
 
@@ -22,16 +22,16 @@ void nms_cpu(std::vector<det>& boxes,
              float threshold,
              std::vector<det> &filtered_output);
 /*
-描述：
-    nms 极大值抑制
+説明：
+    NMS 非最大値抑制
 
-输入：
-    boxes               待处理的det数据组
-    threashold          阈值，面积大于阈值的，则可能被抑制
-    filtered_output     输出的det数据组
+入力：
+    boxes               処理対象の det データセット
+    threashold          しきい値，面積がしきい値より大きい場合、抑制される可能性があります
+    filtered_output     出力する det データセット
 
-输出：
-    无
+出力：
+    なし
 
 */
 
@@ -41,18 +41,18 @@ void letter_box(cv::Mat &src,
                 int height, 
                 struct Transform_info *t_info);
 /*
-描述：
-    opencv补边，不改变原图尺寸比例的情况下，缩放到想要的大小
+説明：
+    OpenCV でパディングし、元画像のアスペクト比を変更せずに目的のサイズへスケーリングします
 
-输入：
-    src                 原图
-    dst                 返回图
-    width               目标宽度
-    height              目标高度
-    t_info              记录变换结构结果
+入力：
+    src                 元画像
+    dst                 戻り値画像
+    width               ターゲット幅
+    height              ターゲット高さ
+    t_info              変換構造の結果を記録します
 
-输出：
-    无
+出力：
+    なし
     
 */
 

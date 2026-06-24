@@ -7,7 +7,7 @@
 #include <opencv2/opencv.hpp>
 
 
-// 画线
+// 線を描画します
 cv::Mat draw_line(cv::Mat image, float *key1, float *key2, cv::Scalar color)
 {
 	if (key1[2] > 0.1 && key2[2] > 0.1) {
@@ -22,13 +22,13 @@ cv::Mat draw_line(cv::Mat image, float *key1, float *key2, cv::Scalar color)
 }
 
 
-// 绘制结果:
-// 0鼻子, 1左眼, 2右眼，3左耳，4右耳，5左肩，6右肩，7左肘，8右肘，9左腕，10右腕，11左髋关节，12右髋关节，13左膝，14右膝，15左脚踝，16右脚踝
+// 結果を描画します:
+// 0 鼻、1 左目、2 右目、3 左耳、4 右耳、5 左肩、6 右肩、7 左肘、8 右肘、9 左手首、10 右手首、11 左股関節、12 右股関節、13 左膝、14 右膝、15 左足首、16 右足首
 cv::Mat draw_image(cv::Mat image, std::vector<person_pose_result_t> results)
 {
 	long unsigned int i =0;
 	for (i = 0; i < results.size(); i++) {
-		// 绘制脸部
+		// 顔部分を描画します
 		image = draw_line(image, results[i].keypoints[0], results[i].keypoints[1], CV_RGB(0, 255, 0));
 		image = draw_line(image, results[i].keypoints[0], results[i].keypoints[2], CV_RGB(0, 255, 0));
 		image = draw_line(image, results[i].keypoints[1], results[i].keypoints[3], CV_RGB(0, 255, 0));
@@ -36,7 +36,7 @@ cv::Mat draw_image(cv::Mat image, std::vector<person_pose_result_t> results)
 		image = draw_line(image, results[i].keypoints[3], results[i].keypoints[5], CV_RGB(0, 255, 0));
 		image = draw_line(image, results[i].keypoints[4], results[i].keypoints[6], CV_RGB(0, 255, 0));
 
-		// 绘制上半身
+		// 上半身を描画します
 		image = draw_line(image, results[i].keypoints[5], results[i].keypoints[6], CV_RGB(0, 0, 255));
 		image = draw_line(image, results[i].keypoints[5], results[i].keypoints[7], CV_RGB(0, 0, 255));
 		image = draw_line(image, results[i].keypoints[7], results[i].keypoints[9], CV_RGB(0, 0, 255));
@@ -46,7 +46,7 @@ cv::Mat draw_image(cv::Mat image, std::vector<person_pose_result_t> results)
 		image = draw_line(image, results[i].keypoints[6], results[i].keypoints[12], CV_RGB(0, 0, 255));
 		image = draw_line(image, results[i].keypoints[11], results[i].keypoints[12], CV_RGB(0, 0, 255));
 
-		// 绘制下半身
+		// 下半身を描画します
 		image = draw_line(image, results[i].keypoints[11], results[i].keypoints[13], CV_RGB(255, 255, 0));
 		image = draw_line(image, results[i].keypoints[13], results[i].keypoints[15], CV_RGB(255, 255, 0));
 		image = draw_line(image, results[i].keypoints[12], results[i].keypoints[14], CV_RGB(255, 255, 0));
@@ -59,7 +59,7 @@ cv::Mat draw_image(cv::Mat image, std::vector<person_pose_result_t> results)
 	return image;
 }
 
-/// 主函数
+/// メイン関数
 int main(int argc, char **argv)
 {
     if (argc != 3) {
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 	double time_elapsed = (end_time - start_time) / cv::getTickFrequency() * 1000;
 	std::cout << "person pose run time: " << time_elapsed << " ms" << std::endl;
 
-	// 绘制结果
+	// 結果を描画します
 	image = draw_image(image, results);
 
 	cv::imwrite("result.jpg", image);

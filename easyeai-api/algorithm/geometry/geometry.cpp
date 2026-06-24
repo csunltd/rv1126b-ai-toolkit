@@ -85,7 +85,7 @@ float CalculateIntersection(fRect_t rect1, fRect_t rect2)
 }
 #endif
 
-/* 功能：判断点是否在矩形内
+/* 機能：点が矩形内にあるか判定します
  * 
  */
 bool point_in_rect(s32Point_t point, s32Rect_t rect)
@@ -101,7 +101,7 @@ bool point_in_rect(s32Point_t point, s32Rect_t rect)
 	return true;
 }
 
-/* 功能：计算矩形面积
+/* 機能：矩形の面積を計算します
  * 
  */
 int32_t calc_rect_square(s32Rect_t rect)
@@ -109,7 +109,7 @@ int32_t calc_rect_square(s32Rect_t rect)
 	return (rect.right - rect.left)*(rect.bottom - rect.top);
 }
 
-/* 功能：找出面积较小矩形
+/* 機能：面積が小さい矩形を取得します
  * 
  */
 s32Rect_t min_rect(s32Rect_t rect1, s32Rect_t rect2)
@@ -121,7 +121,7 @@ s32Rect_t min_rect(s32Rect_t rect1, s32Rect_t rect2)
 	}
 }
 
-/* 功能：找出面积较大矩形
+/* 機能：面積が大きい矩形を取得します
  * 
  */
 s32Rect_t max_rect(s32Rect_t rect1, s32Rect_t rect2)
@@ -133,7 +133,7 @@ s32Rect_t max_rect(s32Rect_t rect1, s32Rect_t rect2)
 	}
 }
 
-/* 功能：判断矩形是否相交或相切
+/* 機能：矩形同士が交差または接しているか判定します
  * 
  */
 bool rect_is_intersect(s32Rect_t rect1, s32Rect_t rect2)
@@ -143,25 +143,25 @@ bool rect_is_intersect(s32Rect_t rect1, s32Rect_t rect2)
 	
 // ================================================== //
 
-	// 判断[矩形A(左上角)]是否在 [矩形B内]
+	// ［矩形 A（左上角）］が［矩形 B 内］にあるか判定します
 	point.x = rect1.left;
 	point.y = rect1.top;
 	bIsPointRect = point_in_rect(point, rect2);
 	if(bIsPointRect){return bIsPointRect;}
 	
-	// 判断[矩形A(右上角)]是否在 [矩形B内]
+	// ［矩形 A（右上角）］が［矩形 B 内］にあるか判定します
 	point.x = rect1.right;
 	point.y = rect1.top;
 	bIsPointRect = point_in_rect(point, rect2);
 	if(bIsPointRect){return bIsPointRect;}
 	
-	// 判断[矩形A(右下角)]是否在 [矩形B内]
+	// ［矩形 A（右下角）］が［矩形 B 内］にあるか判定します
 	point.x = rect1.right;
 	point.y = rect1.bottom;
 	bIsPointRect = point_in_rect(point, rect2);
 	if(bIsPointRect){return bIsPointRect;}
 	
-	// 判断[矩形A(左下角)]是否在 [矩形B内]
+	// ［矩形 A（左下角）］が［矩形 B 内］にあるか判定します
 	point.x = rect1.left;
 	point.y = rect1.bottom;
 	bIsPointRect = point_in_rect(point, rect2);
@@ -169,25 +169,25 @@ bool rect_is_intersect(s32Rect_t rect1, s32Rect_t rect2)
 	
 // ================================================== //
 	
-	// 判断[矩形B(左上角)]是否在 [矩形A内]
+	// ［矩形 B（左上角）］が［矩形 A 内］にあるか判定します
 	point.x = rect2.left;
 	point.y = rect2.top;
 	bIsPointRect = point_in_rect(point, rect1);
 	if(bIsPointRect){return bIsPointRect;}
 	
-	// 判断[矩形B(右上角)]是否在 [矩形A内]
+	// ［矩形 B（右上角）］が［矩形 A 内］にあるか判定します
 	point.x = rect2.right;
 	point.y = rect2.top;
 	bIsPointRect = point_in_rect(point, rect1);
 	if(bIsPointRect){return bIsPointRect;}
 	
-	// 判断[矩形B(右下角)]是否在 [矩形A内]
+	// ［矩形 B（右下角）］が［矩形 A 内］にあるか判定します
 	point.x = rect2.right;
 	point.y = rect2.bottom;
 	bIsPointRect = point_in_rect(point, rect1);
 	if(bIsPointRect){return bIsPointRect;}
 	
-	// 判断[矩形B(左下角)]是否在 [矩形A内]
+	// ［矩形 B（左下角）］が［矩形 A 内］にあるか判定します
 	point.x = rect2.left;
 	point.y = rect2.bottom;
 	bIsPointRect = point_in_rect(point, rect1);
@@ -198,13 +198,13 @@ bool rect_is_intersect(s32Rect_t rect1, s32Rect_t rect2)
 	return bIsPointRect;
 }
 
-/* 功能：计算两矩形相交部分面积
+/* 機能：2 つの矩形の交差部分の面積を計算します
  * 
  */
 int32_t calc_rect_intersect_square(s32Rect_t rect1, s32Rect_t rect2)
 {
 	int32_t w, h;
-	// 如果两个矩形相交
+	// 2 つの矩形が交差する場合
 	if(rect_is_intersect(rect1, rect2)){
 		w = min(rect1.right,  rect2.right)  - max(rect1.left, rect2.left);
 		h = min(rect1.bottom, rect2.bottom) - max(rect1.top,  rect2.top);
@@ -215,7 +215,7 @@ int32_t calc_rect_intersect_square(s32Rect_t rect1, s32Rect_t rect2)
 	
 }
 
-/* 功能：计算[两矩形相交部分面积]与[小矩形面积]之比
+/* 機能：［2 つの矩形の交差部分の面積］と［小さい矩形の面積］の比率を計算します
  * 
  */
 double calc_intersect_of_min_rect(s32Rect_t rect1, s32Rect_t rect2)
@@ -227,7 +227,7 @@ double calc_intersect_of_min_rect(s32Rect_t rect1, s32Rect_t rect2)
 	return (Si/Sr);
 }
 
-/* 功能：计算两矩形的交并比
+/* 機能：2 つの矩形の IoU を計算します
  * 
  */
 double calc_intersect_of_union(s32Rect_t rect1, s32Rect_t rect2)

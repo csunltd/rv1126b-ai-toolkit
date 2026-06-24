@@ -55,11 +55,11 @@
 using namespace std;
 
 /***********************************************************
-    向3对齐
+    3 バイト境界へアラインします
 ************************************************************/
 #define ALIGN3(n) ((n + 2)/3*3)
 /***********************************************************
-    向4对齐
+    4 バイト境界へアラインします
 ************************************************************/
 #define ALIGN4(n) ((n + 3)/4*4)
 
@@ -166,8 +166,8 @@ static std::string decode(std::string const& encoded_string)
 
 int32_t base64_encode(char *out_data, const char* in_data, unsigned int in_len)
 {
-	int mindataLen = 0;//防越界
-	int real_in_len = ALIGN3(in_len) * 4/3;	//转换成base64后，数据会增大1/3
+	int mindataLen = 0;//範囲外アクセス防止
+	int real_in_len = ALIGN3(in_len) * 4/3;	//base64 に変換後、データは 1/3 増加します
 	
 	std::string encodedStr = encode((const unsigned char*)in_data, in_len);
 	if(encodedStr.empty()){
@@ -185,7 +185,7 @@ int32_t base64_encode(char *out_data, const char* in_data, unsigned int in_len)
 
 int32_t base64_decode(char *out_data, unsigned int out_len, const char* encoded_string)
 {
-	unsigned int mindataLen = 0;//防越界
+	unsigned int mindataLen = 0;//範囲外アクセス防止
 	
 	std::string in_string;
 	std::string decodedStr;

@@ -54,8 +54,8 @@
 using namespace std;
 
 /***********************************************************
-    系统中有些地方需要对指针进行赋值，但在赋值之前需要
-    判断指针是否为空，这里统一定义一个宏定义
+    システム内の一部ではポインタへ値を代入する必要がありますが、代入前に
+    ポインタが NULL かどうかを判定します。ここではマクロとして統一定義します
 ************************************************************/
 #define TRY_EVALUATE_POINTER(pointer, value) do{\
     if(pointer)\
@@ -68,13 +68,13 @@ using namespace std;
 /*********************************************************************
 Function:
 Description:
-	查看cpu的实时温度
+	CPU のリアルタイム温度を取得します
 Example:
 	double cpuTemp = cpu_tempture();
 parameter:
-    无
+    なし
 Return:
-	cpu的实时温度，单位：摄氏度
+	CPU のリアルタイム温度。単位：摂氏度
 ********************************************************************/
 double cpu_tempture()
 {
@@ -98,13 +98,13 @@ double cpu_tempture()
 /*********************************************************************
 Function:
 Description:
-	查看npu的实时温度
+	NPU のリアルタイム温度を取得します
 Example:
 	double npuTemp = npu_tempture();
 parameter:
-    无
+    なし
 Return:
-	npu的实时温度，单位：摄氏度
+	NPU のリアルタイム温度。単位：摂氏度
 ********************************************************************/
 double npu_tempture()
 {
@@ -128,13 +128,13 @@ double npu_tempture()
 /*********************************************************************
 Function:
 Description:
-	获取CPU状态到cpu_occupy_t结构体
+	CPU 状態を cpu_occupy_t 構造体へ取得します
 Example:
 	get_cpu_occupy((cpu_occupy_t *)&cpu_stat1);
 parameter:
-    cpust: 用于存放cpu状态的结构体
+    cpust: CPU 状態を格納するための構造体
 Return:
-	无
+	なし
 ********************************************************************/
 void get_cpu_occupy(cpu_occupy_t *cpust)
 {
@@ -166,7 +166,7 @@ void get_cpu_occupy(cpu_occupy_t *cpust)
 /*********************************************************************
 Function:
 Description:
-	通过新旧2次的CPU状态计算出CPU占用率
+	新旧 2 回分の CPU 状態から CPU 使用率を計算します
 Example:
 	double cpu_usage()
     {
@@ -185,17 +185,17 @@ Example:
         }else{
             get_cpu_occupy((cpu_occupy_t *)&cpu_stat2);
         }
-        //计算cpu使用率
+        //CPU 使用率を計算します
         cpu = cal_cpu_occupy ((cpu_occupy_t *)&cpu_stat1, (cpu_occupy_t *)&cpu_stat2);
         memcpy(&cpu_stat1, &cpu_stat2, sizeof(cpu_occupy_t));
 
         return cpu;
     }
 parameter:
-    o: 上次获取的cpu状态
-    n: 新获取的cpu状态
+    o: 前回取得した CPU 状態
+    n: 新しく取得した CPU 状態
 Return:
-	cpu的占用率
+	CPU 使用率
 ********************************************************************/
 double cal_cpu_occupy(cpu_occupy_t *o, cpu_occupy_t *n)
 {
@@ -203,13 +203,13 @@ double cal_cpu_occupy(cpu_occupy_t *o, cpu_occupy_t *n)
     double id, sd;
     double cpu_use;
 
-    od = (double) (o->user + o->nice + o->system + o->idle + o->softirq + o->iowait + o->irq);//第一次(用户+优先级+系统+空闲)的时间再赋给od
-    nd = (double) (n->user + n->nice + n->system + n->idle + n->softirq + n->iowait + n->irq);//第二次(用户+优先级+系统+空闲)的时间再赋给od
-    id = (double) (n->idle); //用户第一次和第二次的时间之差再赋给id
-    sd = (double) (o->idle) ; //系统第一次和第二次的时间之差再赋给sd
+    od = (double) (o->user + o->nice + o->system + o->idle + o->softirq + o->iowait + o->irq);//1 回目の（user + nice + system + idle）時間を od に代入します
+    nd = (double) (n->user + n->nice + n->system + n->idle + n->softirq + n->iowait + n->irq);//2 回目の（user + nice + system + idle）時間を nd に代入します
+    id = (double) (n->idle); //1 回目と 2 回目の idle 時間差を id に代入します
+    sd = (double) (o->idle) ; //1 回目の idle 時間を sd に代入します
     
     if((nd-od) != 0)
-        cpu_use =100.0 - ((id-sd))/(nd-od)*100.00; //((用户+系统)乘100)除(第一次和第二次的时间差)再赋给g_cpu_used
+        cpu_use =100.0 - ((id-sd))/(nd-od)*100.00; //((user + system) * 100) を 1 回目と 2 回目の時間差で割った値を g_cpu_used に代入します
     else
         cpu_use = 0;
 
@@ -219,13 +219,13 @@ double cal_cpu_occupy(cpu_occupy_t *o, cpu_occupy_t *n)
 /*********************************************************************
 Function:
 Description:
-	查看可用内存的已使用空间占用率
+	利用可能メモリに対する使用済み領域の使用率を確認します
 Example:
 	double memUsage = memory_usage();
 parameter:
-    无
+    なし
 Return:
-	可用内存的已使用空间占用率
+	利用可能メモリに対する使用済み領域の使用率
 ********************************************************************/
 double memory_usage()
 {
@@ -270,28 +270,28 @@ double memory_usage()
 /*********************************************************************
 Function:
 Description:
-	获取挂载点(分区)占用率
+	マウントポイント（パーティション）の使用率を取得します
 Example:
 	double diskUsage = partition_usage("/userdata");
 parameter:
-    path: 需要查询的挂载点(分区)在文件系统的目录
+    path: 照会対象のマウントポイント（パーティション）がファイルシステム上に存在するディレクトリ
 Return:
-	挂载点(分区)已被使用的空间占用率
+	マウントポイント（パーティション）の使用済み領域の使用率
 ********************************************************************/
 double partition_usage(const char *path)
 {
     /*
     struct statfs 
     { 
-       long    f_type;     // 文件系统类型  
-       long    f_bsize;    // 经过优化的传输块大小  
-       long    f_blocks;   // 文件系统数据块总数 
-       long    f_bfree;    // 可用块数
-       long    f_bavail;   // 非超级用户可获取的块数 
-       long    f_files;    // 文件结点总数
-       long    f_ffree;    // 可用文件结点数
-       fsid_t  f_fsid;     // 文件系统标识
-       long    f_namelen;  // 文件名的最大长度
+       long    f_type;     // ファイルシステムタイプ  
+       long    f_bsize;    // 最適化された転送ブロックサイズ  
+       long    f_blocks;   // ファイルシステムデータブロック総数 
+       long    f_bfree;    // 利用可能ブロック数
+       long    f_bavail;   // 非スーパーユーザーが取得可能なブロック数 
+       long    f_files;    // ファイルノード総数
+       long    f_ffree;    // 利用可能ファイルノード数
+       fsid_t  f_fsid;     // ファイルシステム識別子
+       long    f_namelen;  // ファイル名の最大長
     };
     */
     struct statfs s;
@@ -315,18 +315,18 @@ double partition_usage(const char *path)
 /*********************************************************************
 Function:
 Description:
-	获取系统时间戳，通常用于性能测试
+	システムタイムスタンプを取得します。通常は性能テストに使用します
 Example:
 	uint64_t timeval_bf = get_timeval_us();
 parameter:
-    无
+    なし
 Return:
-	系统时间戳(UTC时间，没有进行时区偏移)，单位：微秒
+	システムタイムスタンプ（UTC 時間、タイムゾーン補正なし）。単位：マイクロ秒
 ********************************************************************/
 uint64_t get_timeval_us()
 {
     struct timeval tv;
-	gettimeofday(&tv, NULL);	// UTC时间
+	gettimeofday(&tv, NULL);	// UTC 時間
 	
 	return ((uint64_t)tv.tv_sec * 1000000 + tv.tv_usec);
 }
@@ -334,36 +334,36 @@ uint64_t get_timeval_us()
 /*********************************************************************
 Function:
 Description:
-	获取系统时间戳，通常用于性能测试
+	システムタイムスタンプを取得します。通常は性能テストに使用します
 Example:
 	uint64_t timeval_bf = get_timeval_ms();
 parameter:
-    无
+    なし
 Return:
-	系统时间戳(UTC时间，没有进行时区偏移)，单位：毫秒
+	システムタイムスタンプ（UTC 時間、タイムゾーン補正なし）。単位：ミリ秒
 ********************************************************************/
 uint64_t get_timeval_ms()
 {
     struct timeval tv;
-	gettimeofday(&tv, NULL);	// UTC时间
+	gettimeofday(&tv, NULL);	// UTC 時間
 	return ((uint64_t)tv.tv_sec * 1000 + tv.tv_usec/1000);
 }
 
 /*********************************************************************
 Function:
 Description:
-	获取系统时间戳，通常用于性能测试
+	システムタイムスタンプを取得します。通常は性能テストに使用します
 Example:
 	uint64_t timeval_bf = get_timeval_s();
 parameter:
-    无
+    なし
 Return:
-	系统时间戳(UTC时间，没有进行时区偏移)，单位：秒
+	システムタイムスタンプ（UTC 時間、タイムゾーン補正なし）。単位：秒
 ********************************************************************/
 uint64_t get_timeval_s()
 {
     struct timeval tv;
-	gettimeofday(&tv, NULL);	// UTC时间
+	gettimeofday(&tv, NULL);	// UTC 時間
 	
 	return (uint64_t)tv.tv_sec;
 }
@@ -371,18 +371,18 @@ uint64_t get_timeval_s()
 /*********************************************************************
 Function:
 Description:
-	毫秒级延时
+	ミリ秒単位の遅延
 Example:
 	osTask_usDelay(10);
 parameter:
-    s:延时时间-单位：微秒
+    s: 遅延時間 - 単位：マイクロ秒
 Return:
-	无
-说明:
-	- nanosleep一旦被调用，进程就进入 TASK_INTERRUPTIBLE 状态，直到进程被唤醒，就回到 TASK_RUNNIN 状态。
-	- TASK_INTERRUPTIBLE 和 TASK_UNINTERRUPTIBLE 的区别：
-		TASK_INTERRUPTIBLE 是可以被 [信号] 和 [wake_up()] 唤醒的，当信号到来时，进程会被设置为可运行。
-		TASK_UNINTERRUPTIBLE 只能被 [wake_up()] 唤醒。
+	なし
+説明:
+	- nanosleep が呼び出されると、プロセスは TASK_INTERRUPTIBLE 状態に入り、プロセスが起床されると TASK_RUNNING 状態に戻ります。
+	- TASK_INTERRUPTIBLE と TASK_UNINTERRUPTIBLE の違い：
+		TASK_INTERRUPTIBLE は［シグナル］および［wake_up()］によって起床できます。シグナルが到達すると、プロセスは実行可能状態に設定されます。
+		TASK_UNINTERRUPTIBLE は [wake_up()] によってのみ起床できます。
 ********************************************************************/
 uint32_t osTask_usDelay(uint32_t us)
 {
@@ -429,13 +429,13 @@ uint32_t osTask_sDelay(uint32_t s)
 /*********************************************************************
 Function:
 Description:
-	毫秒级延时
+	ミリ秒単位の遅延
 Example:
 	msleep(10);
 parameter:
-    ms:延时时间-单位：毫秒
+    ms: 遅延時間 - 単位：ミリ秒
 Return:
-	若进程/线程被中断，则返回剩余时间(ms)
+	プロセス／スレッドが割り込まれた場合、残り時間（ms）を返します
 ********************************************************************/
 uint32_t msleep (uint32_t ms)
 {
@@ -449,18 +449,18 @@ uint32_t msleep (uint32_t ms)
 /*********************************************************************
 Function:
 Description:
-	获取系统时间戳
+	システムタイムスタンプを取得します
 Example:
 	int timeStamp = get_time_stamp();
 parameter:
-	无
+	なし
 Return:
-	系统当前时间戳(UTC时间，没有进行时区偏移)
+	現在のシステムタイムスタンプ（UTC 時間、タイムゾーン補正なし）
 ********************************************************************/
 int32_t get_time_stamp()
 {
 	time_t t;
-	t = time(NULL);	// UTC时间
+	t = time(NULL);	// UTC 時間
  
 	return time(&t);
 }
@@ -468,23 +468,23 @@ int32_t get_time_stamp()
 /*********************************************************************
 Function:
 Description:
-	把日期和时间按:年月日时分秒排列到参数中
+	日付と時刻を年・月・日・時・分・秒の順にパラメータへ格納します
 Example:
 	uint32_t curDate, curTime
 	get_system_date_time(&curDate, &curTime);
 parameter:
-    *curDate:当前日期
-    *curTime:当前时间(已做时区偏移)
+    *curDate:現在日期
+    *curTime: 現在時刻（タイムゾーン補正済み）
 Return:
-	无
+	なし
 ********************************************************************/
 void get_system_date_time(uint32_t *curDate, uint32_t *curTime)
 {
-    time_t timer;//time_t就是long int 类型
+    time_t timer;//time_t就是long int タイプ
     struct tm *tblock;
 
-    timer = time(NULL);	// UTC时间
-    tblock = localtime(&timer); //获取本时区时间
+    timer = time(NULL);	// UTC 時間
+    tblock = localtime(&timer); //ローカルタイムゾーンの時刻を取得します
 
 	*curDate = 10000 * (tblock->tm_year+1900) + 100 * (tblock->tm_mon + 1) + (tblock->tm_mday);
  	*curTime = 10000 * (tblock->tm_hour) + 100 * (tblock->tm_min) + (tblock->tm_sec);
@@ -493,18 +493,18 @@ void get_system_date_time(uint32_t *curDate, uint32_t *curTime)
 /*********************************************************************
 Function:
 Description:
-	设置系统时间，注意自动校时
+	システム時刻を設定します。自動時刻補正に注意してください
 Example:
 	set_system_date_time(2021, 12, 22, 11, 14, 59);
 parameter:
     year：年
      mon：月
      day：日
-    hour：时(当前时区时间，无须额外进行时区偏移)
+    hour: 時（現在のタイムゾーン時刻。追加のタイムゾーン補正は不要です）
      min：分
     second：秒
 Return:
-	无
+	なし
 ********************************************************************/
 void set_system_date_time(int year, int mon, int day, int hour, int min, int second)
 {
@@ -518,24 +518,24 @@ void set_system_date_time(int year, int mon, int day, int hour, int min, int sec
     t.tm_mon = mon-1;
     t.tm_mday = day;
 
-    t.tm_hour = hour;	// 填入本时区时间
+    t.tm_hour = hour;	// ローカルタイムゾーンの時刻を設定します
     t.tm_min = min;
     t.tm_sec = second;
 
-	tStamp = mktime(&t); // mktime返回值为UTC时间
+	tStamp = mktime(&t); // mktime の戻り値は UTC 時間です
     if(-1 == tStamp){
         perror("mktime");
     }else{
 		tv.tv_sec = tStamp;
 		tv.tv_usec = 0;
-		settimeofday(&tv, NULL);	// UTC时间
+		settimeofday(&tv, NULL);	// UTC 時間
 	}
 }
 
 /*********************************************************************
 Function:
 Description:
-	计算当天是星期几
+	計算当天是星期几
 Example:
 	calc_week_day(2022, 3, 18);
 parameter:
@@ -543,7 +543,7 @@ parameter:
 	m:月
 	d:日
 Return:
-	星期几(0-星期一；6-星期日)
+	星期几(0-月曜日；6-日曜日)
 ********************************************************************/
 uint8_t calc_week_day(int y,int m, int d)
 {
@@ -556,13 +556,13 @@ uint8_t calc_week_day(int y,int m, int d)
 #ifdef __TEST_SOFT__
     switch(iWeek)
     {
-        case 0: printf("星期一\n"); break;
-        case 1: printf("星期二\n"); break;
-        case 2: printf("星期三\n"); break;
-        case 3: printf("星期四\n"); break;
-        case 4: printf("星期五\n"); break;
-        case 5: printf("星期六\n"); break;
-        case 6: printf("星期日\n"); break;
+        case 0: printf("月曜日\n"); break;
+        case 1: printf("火曜日\n"); break;
+        case 2: printf("水曜日\n"); break;
+        case 3: printf("木曜日\n"); break;
+        case 4: printf("金曜日\n"); break;
+        case 5: printf("土曜日\n"); break;
+        case 6: printf("日曜日\n"); break;
     }
 #endif
     return iWeek;
@@ -572,8 +572,8 @@ uint8_t calc_week_day(int y,int m, int d)
 /*********************************************************************
 Function:
 Description:
-	以分离的模式创建一个线程,如果新线程与主线程共享变量，该线程必 须要确保
-	它在运行期间， 线程体中使用的变量没有被主线程释放。否则会出问题。
+	分離モードでスレッドを作成します。新しいスレッドがメインスレッドと変数を共有する場合、そのスレッドは必ず確認する必要があります
+	実行中にスレッド本体で使用する変数がメインスレッドによって解放されていないこと。そうしないと問題が発生します。
 Example:
     void *xxxThreadBody(void *arg)
 	{
@@ -584,12 +584,12 @@ Example:
 	int share_para;
 	CreateNormalThread(xxxThreadBody, &share_para, &pId);
 parameter:
-    entry : 线程体执行函数
-    *para : 传入线程体的参数，用作共享变量
-    *pid  : 传入的pid为NULL，会直接退出整个进程
+    entry: スレッド本体の実行関数
+    *para: スレッド本体へ渡すパラメータ。共有変数として使用します
+    *pid: 渡された pid が NULL の場合、プロセス全体を直接終了します
 Return:
-	 0：创建成功
-	-1：创建失败
+	 0：作成成功
+	-1：作成失敗
 ********************************************************************/
 int32_t CreateNormalThread(ThreadEntryPtrType entry, void *para, pthread_t *pid)
 {
@@ -597,9 +597,9 @@ int32_t CreateNormalThread(ThreadEntryPtrType entry, void *para, pthread_t *pid)
     pthread_attr_t attr;
 
     pthread_attr_init(&attr);
-    pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);//绑定
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);//分离
-    if(pthread_create(&ThreadId, &attr, entry, para) == 0)//创建线程
+    pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);// バインド
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);// デタッチ
+    if(pthread_create(&ThreadId, &attr, entry, para) == 0)//スレッドを作成します
     {
         pthread_attr_destroy(&attr);
         TRY_EVALUATE_POINTER(pid, ThreadId);
@@ -644,26 +644,26 @@ int32_t WaitExitThread(pthread_t pid)
 /*********************************************************************
 Function:
 Description:
-	执行shell命令
+	シェルコマンドを実行します
 Example:
 	SYSTEM("ls");
 parameter:
-	*cmdstring: shell命令语句
+	*cmdstring: シェルコマンド文
 Return:
-	对于fork失败，system()函数返回-1。
-	如果exec执行成功，也即command顺利执行完毕，则返回command通过exit或return返回的值。
-	(注意，command顺利执行不代表执行成功，比如command："rm debuglog.txt"，不管文件存不存在该command都顺利执行了)
-	如果exec执行失败，也即command没有顺利执行，比如被信号中断，或者command命令根本不存在，system()函数返回127.
+	fork が失敗した場合、system() 関数は -1 を返します。
+	exec の実行に成功し、command が正常に完了した場合、command が exit または return で返した値を返します。
+	(注意：command が正常に実行されたことは、処理が成功したことを意味しません。例：command が "rm debuglog.txt" の場合、ファイルが存在するかどうかにかかわらず command 自体は正常に実行されます)
+	exec の実行に失敗した場合、つまり command が正常に実行されなかった場合（シグナルで中断された、または command コマンド自体が存在しないなど）、system() 関数は 127 を返します。
 注意：
-	* 无论是system()还是SYSTEM()，在调用时，信号的处理方式不为SIG_DFL，则父进程无法通过waitpid()函数对子进程进行收尸。这样会产生僵尸进程。
-	* 如果你希望使用 wait () 或 waitpid () 对子进程收尸，那么你必须在调用前(事实上是fork ()前)将SIGCHLD信号置为SIG_DFL处理方式。
-	  调用后(事实上wait()/waitpid()后)再将信号处理方式设置为从前的值。
-调用建议：
-	1、建议system()函数只用来执行shell命令，因为一般来讲，system()/SYSTEM()返回值不是0就说明出错了；
-	2、建议监控一下system()/SYSTEM()函数的执行完毕后的errno值，争取出错时给出更多有用信息；
-	3、如果waitpid()函数是被信号中断而返回负数的，则继续调用waitpid()函数。这个包括SIGINT，不违反POSIX.1定义；
-	4、system()/SYSTEM()非阻塞方式注意点：’&’转后台，同时将输出重定向。否则变为阻塞方式；
-	5、建议考虑一下system()/SYSTEM()函数的替代函数popen ()；
+	* system() または SYSTEM() の呼び出し時にシグナル処理方式が SIG_DFL でない場合、親プロセスは waitpid() 関数で子プロセスを回収できません。その結果、ゾンビプロセスが発生します。
+	* wait() または waitpid() を使用して子プロセスを回収したい場合は、呼び出し前（実際には fork() 前）に SIGCHLD シグナルを SIG_DFL 処理方式へ設定する必要があります。
+	  呼び出し後（実際には wait()/waitpid() 後）に、シグナル処理方式を以前の値へ戻します。
+呼び出し時の推奨事項：
+	1、system() 関数はシェルコマンド実行のみに使用することを推奨します。一般に system()/SYSTEM() の戻り値が 0 でない場合はエラーを示します。
+	2、system()/SYSTEM() 関数実行後の errno 値を監視し、エラー時により有用な情報を出力することを推奨します。
+	3、waitpid() 関数がシグナル割り込みにより負の値を返した場合は、waitpid() 関数を再度呼び出します。これは SIGINT も含み、POSIX.1 定義に違反しません。
+	4、system()/SYSTEM() の非ブロッキング方式に関する注意点：`&` でバックグラウンド化し、同時に出力をリダイレクトしてください。そうしないとブロッキング方式になります。
+	5、system()/SYSTEM() 関数の代替として popen() の利用を検討することを推奨します。
 ********************************************************************/
 static int32_t SYSTEM(const char *cmdstring)
 {
@@ -675,21 +675,21 @@ static int32_t SYSTEM(const char *cmdstring)
         return (1);
     }
 
-	// 此函数与系统的system()差异是:[系统用fork()，此函数用vfork()]
-	// fork()  -子进程拷贝父进程的数据段和代码段，这里通过拷贝页表实现。
-	//         -父子进程的执行次序不确定。
-	// vfork() -子进程与父进程共享地址空间，无需拷贝页表，效率更高。
-	//         -保证子进程先运行，在调用 exec 或 exit 之前与父进程数据是共享的。父进程在子进程调用 exec 或 exit 之后才可能被调度运行，如果在调用这两个函数之前子进程依赖于父进程的进一步动作，则会导致死锁。
+	// この関数とシステムの system() との差異は、システムは fork() を使用し、この関数は vfork() を使用する点です
+	// fork()  -子プロセスは親プロセスのデータセグメントとコードセグメントをコピーします。ここではページテーブルのコピーにより実現されます。
+	//         -親子プロセスの実行順序は不定です。
+	// vfork() -子プロセスは親プロセスとアドレス空間を共有するため、ページテーブルをコピーする必要がなく、効率が高くなります。
+	//         -子プロセスが先に実行されることを保証し、exec または exit を呼び出すまでは親プロセスとデータを共有します。親プロセスは子プロセスが exec または exit を呼び出した後にのみスケジューリングされる可能性があります。これらの関数を呼び出す前に子プロセスが親プロセスの追加処理に依存している場合、デッドロックが発生します。
     if((pid = vfork())<0)
     {
         status = -1;
     }
-    else if(pid == 0)	//子进程中运行脚本命令
+    else if(pid == 0)	//子プロセスでスクリプトコマンドを実行します
     {
         execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
-        exit(127); //子进程正常执行则不会执行此语句
+        exit(127); //子プロセスが正常に実行された場合、この文は実行されません
     }
-    else		//父进程中等待子进程返回
+    else		//親プロセスで子プロセスの戻りを対象機します
     {
         while(waitpid(pid, &status, 0) < 0)
         {
@@ -706,31 +706,31 @@ static int32_t SYSTEM(const char *cmdstring)
 /*********************************************************************
 Function:
 Description:
-	执行shell命令
+	シェルコマンドを実行します
 Example:
 	exec_cmd_by_system("ls");
 parameter:
-	*cmd: shell命令语句
+	*cmd: シェルコマンド文
 Return:
 	同SYSTEM(const char *cmdstring);
 注意：
-	如果 SIGCHLD 信号行为被设置为 SIG_IGN 时，waitpid () 函数有可能因为找不到子进程而报 ECHILD 错误。
+	SIGCHLD のシグナル動作が SIG_IGN に設定されている場合、waitpid() 関数は子プロセスを見つけられず ECHILD エラーを返す可能性があります。
 	解析：
-    * systeme() 函数依赖了系统的一个特性，那就是内核初始化进程时对 SIGCHLD 信号的处理方式为 SIG_DFL。
+    * systeme() 関数は、カーネルがプロセス初期化時に SIGCHLD シグナルの処理方式を SIG_DFL にするというシステム特性に依存しています。
 	
-	-[信号的处理方式为 SIG_DFL]是什么什么意思呢？
-	* 即内核发现进程的子进程终止后给进程发送一个 SIGCHLD 信号，进程收到该信号后采用 SIG_DFL 方式处理。
+	-[シグナルの処理方式が SIG_DFL]とはどういう意味でしょうか。
+	* つまり、カーネルはプロセスの子プロセス終了を検出すると SIGCHLD シグナルをプロセスへ送信し、プロセスはそのシグナルを SIG_DFL 方式で処理します。
 	
-	-那么 SIG_DFL 又是什么方式呢？
-	* SIG_DFL 是一个宏，定义了一个信号处理函数指针，事实上该信号处理函数什么也没做。这个特性正是 system () 函数需要的。
-	* system () 函数首先 fork () 一个子进程执行 command 命令，执行完后 system () 函数会使用 waitpid () 函数对子进程进行收尸。	
+	-では SIG_DFL とはどのような方式でしょうか。
+	* SIG_DFL は、シグナル処理関数ポインタを定義するマクロです。実際にはこのシグナル処理関数は何もしません。この特性こそが system() 関数に必要なものです。
+	* system() 関数はまず fork() で子プロセスを生成して command コマンドを実行し、実行完了後に waitpid() 関数で子プロセスを回収します。	
 ********************************************************************/
 int32_t exec_cmd_by_system(const char *cmd)
 {
 	int32_t ret = 0;
 	sighandler_t old_handler;
 
-	old_handler = signal(SIGCHLD, SIG_DFL);	//防止产生僵尸进程
+	old_handler = signal(SIGCHLD, SIG_DFL);	//ゾンビプロセスの発生を防止します
 	ret = SYSTEM(cmd);
 	signal(SIGCHLD, old_handler);
 
@@ -740,19 +740,19 @@ int32_t exec_cmd_by_system(const char *cmd)
 /*********************************************************************
 Function:
 Description:
-	执行shell命令
+	シェルコマンドを実行します
 Example:
 	char result[1024]={0};
 	exec_cmd_by_popen("ls", result);
 parameter:
-	*cmd: shell命令语句
-	*result: 执行shell命令语句后，返回的结果将存进该段内存中
+	*cmd: シェルコマンド文
+	*result: シェルコマンド実行後の結果をこのメモリ領域に格納します
 Return:
-	无
+	なし
 注意：
-	- 如果 cmd 执行失败，子进程会把错误信息打印到标准错误输出，父进程就无法获取。
-	  若需要捕获错误信息，可以重定向子进程的错误输出，让错误输出重定向到标准输出（2>&1），这样父进程就可以捕获子进程的错误信息了。
-	  如：exec_cmd_by_popen("ls 2>&1", result);
+	- cmd の実行に失敗した場合、子プロセスはエラー情報を標準エラー出力へ出力するため、親プロセスは取得できません。
+	  エラー情報を取得する必要がある場合は、子プロセスのエラー出力を標準出力へリダイレクト（2>&1）してください。これにより親プロセスが子プロセスのエラー情報を取得できます。
+	  例：exec_cmd_by_popen("ls 2>&1", result);
 ********************************************************************/
 int32_t exec_cmd_by_popen(const char *cmd, char *result)
 {
@@ -763,7 +763,7 @@ int32_t exec_cmd_by_popen(const char *cmd, char *result)
     if((ptr=popen(ps, "r"))!=NULL){
         while(fgets(buf_ps, 1024, ptr)!=NULL)
         {
-//	       可以通过这行来获取shell命令行中的每一行的输出
+//	       この行を使用して、シェルコマンド出力の各行を取得できます
 //	   	   printf("%s", buf_ps);
            strcat(result, buf_ps);
            if(strlen(result)>1024)

@@ -4,7 +4,7 @@
 #include "rknn_api.h"
 #include "opencv2/opencv.hpp"
 
-/**< @brief 车牌检测器 */
+/**< @brief ナンバープレート検出器 */
 typedef struct {
 	rknn_context rknn_ctx;
 	rknn_input_output_num io_num;
@@ -23,12 +23,12 @@ typedef struct {
 }rknn_lpr_detector_t;
 
 
-/**< @brief 车牌检测结果 */
+/**< @brief ナンバープレート検出結果 */
 typedef struct {
-	cv::Rect	box;			// 检测框位置
-	int         layer_num;      // 车牌行数0表一行，1表2行
-	float       score;          // 置信度
-	cv::Point   key_pts[4];     // 车牌四个角点
+	cv::Rect	box;			// 検出ボックス位置
+	int         layer_num;      // ナンバープレート行数。0 は 1 行、1 は 2 行を表します
+	float       score;          // 信頼度
+	cv::Point   key_pts[4];     // ナンバープレートの 4 つの角点
 }rknn_lpr_det_result_t;
 
 
@@ -37,32 +37,32 @@ extern "C" {
 #endif
 
 	/**
-	* @brief  rknn 车牌检测器初始化函数
+	* @brief  rknn ナンバープレート検出器初期化関数
 	*
-	* @param[in]		p_model_path			车牌检测器模型地址
-	* @param[i/o]		p_det					车牌检测器模型上下文
-	* @return									模型初始化结果，0成功，负值失败
+	* @param[in]		p_model_path			ナンバープレート検出器モデルパス
+	* @param[i/o]		p_det					ナンバープレート検出器モデルコンテキスト
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
 	int rknn_lpr_detector_init(const char *p_model_path, rknn_lpr_detector_t *p_det);
 
 
 	/**
-	* @brief  rknn 车牌检测函数
+	* @brief  rknn ナンバープレート検出関数
 	*
-	* @param[in]		image					待检测车牌图片（BGR格式）
-	* @param[i/o]		p_det					车牌检测器模型上下文
-	* @param[in]		conf_thresh				置信度阈值
-	* @param[in]		nms_thresh				nms阈值
-	* @return									返回检测结果及坐标
+	* @param[in]		image					検出対象ナンバープレート画像（BGR 形式）
+	* @param[i/o]		p_det					ナンバープレート検出器モデルコンテキスト
+	* @param[in]		conf_thresh				信頼度しきい値
+	* @param[in]		nms_thresh				NMS しきい値
+	* @return									検出結果と座標を返します
 	*/
 	std::vector<rknn_lpr_det_result_t> rknn_lpr_detector_calc(cv::Mat image, rknn_lpr_detector_t *p_det, float conf_thresh, float nms_thresh);
 
 
 	/**
-	* @brief  rknn  车牌检测器释放函数
+	* @brief  rknn  ナンバープレート検出器解放関数
 	*
-	* @param[i/o]		p_det					车牌检测器模型上下文
-	* @return									模型释放结果
+	* @param[i/o]		p_det					ナンバープレート検出器モデルコンテキスト
+	* @return									モデル解放結果
 	*/
 	int rknn_lpr_detector_deinit(rknn_lpr_detector_t *p_det);
 

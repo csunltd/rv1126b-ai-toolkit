@@ -32,7 +32,7 @@ static const SrcCfg_t SrcCfg_tab[] = {
         .loaction  = "rtsp://192.168.3.101:554/aabb,
         .videoEncType = "h265",
         .audioEncType = "pcma",
-	}, { // *以下格式尚未研发完成，暂不投入使用
+	}, { // *以下の形式はまだ開発が完了していないため、当面使用しません
 		.srcType   = "file",
 		.loaction  = "/userdata/mydata/car.mp4",
 		.videoEncType = "h264",
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
     }
 
 #if 0
-    //进入显示事件循环
+    //表示イベントループに入ります
     display(&dispDesc);
 #else
     while(1){

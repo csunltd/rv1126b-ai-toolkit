@@ -63,7 +63,7 @@ static void need_data(GstElement *appsrc, guint unused, gpointer user_data)
         GstMapInfo map;
         if (gst_buffer_map(buffer, &map, GST_MAP_WRITE)){
             mipicamera_getframe(camIndex, (char *)map.data);
-            gst_buffer_unmap(buffer, &map);	//解除映射
+            gst_buffer_unmap(buffer, &map);	//マッピングを解除します
         }
         
         /* increment the timestamp every 1/framerate second */

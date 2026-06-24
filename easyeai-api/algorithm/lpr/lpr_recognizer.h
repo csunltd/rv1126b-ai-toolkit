@@ -4,7 +4,7 @@
 #include "rknn_api.h"
 #include "opencv2/opencv.hpp"
 
-/**< @brief 车牌识别器 */
+/**< @brief ナンバープレート認識器 */
 typedef struct {
 	rknn_context rknn_ctx;
 	rknn_input_output_num io_num;
@@ -26,32 +26,32 @@ extern "C" {
 #endif
 
 	/**
-	* @brief  rknn 车牌字符识别初始化函数
+	* @brief  rknn ナンバープレート文字認識を初期化します関数
 	*
-	* @param[in]		p_model_path			车牌字符识别模型地址
-	* @param[i/o]		p_rec					车牌字符识别模型上下文
-	* @return									模型初始化结果，0成功，负值失败
+	* @param[in]		p_model_path			ナンバープレート文字認識モデルパス
+	* @param[i/o]		p_rec					ナンバープレート文字認識モデルコンテキスト
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
 	int rknn_lpr_recognizer_init(const char *p_model_path, rknn_lpr_recognizer_t *p_rec);
 
 
 	/**
-	* @brief  rknn 车牌字符识别函数
+	* @brief  rknn ナンバープレート文字認識関数
 	*
-	* @param[in]		image					待识别车牌图片（BGR格式）
-	* @param[i/o]		p_rec					车牌字符识别模型上下文
-	* @param[i/o]		char_list				车牌号
-	* @param[i/o]		score					置信度评分
-	* @return									模型初始化结果，0成功，负值失败
+	* @param[in]		image					認識対象ナンバープレート画像（BGR 形式）
+	* @param[i/o]		p_rec					ナンバープレート文字認識モデルコンテキスト
+	* @param[i/o]		char_list				ナンバープレート番号
+	* @param[i/o]		score					信頼度スコア
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
 	int rknn_lpr_recognizer_calc(cv::Mat image, rknn_lpr_recognizer_t *p_rec, std::vector<std::string> &char_list, float &score);
 
 
 	/**
-	* @brief  rknn  车牌字符识别释放函数
+	* @brief  rknn  ナンバープレート文字認識を解放します関数
 	*
-	* @param[i/o]		p_rec					车牌字符识别模型上下文
-	* @return									模型释放结果
+	* @param[i/o]		p_rec					ナンバープレート文字認識モデルコンテキスト
+	* @return									モデル解放結果
 	*/
 	int rknn_lpr_recognizer_deinit(rknn_lpr_recognizer_t *p_rec);
 

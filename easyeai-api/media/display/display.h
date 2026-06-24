@@ -25,21 +25,21 @@ extern "C" {
 #include <string.h>
 
 #include "display_pro.h"
-/** 特别注意:
- * 1. display.h与display_pro.h里面的接口大部分是互斥的，除非特别说明，否则不建议混合调用。
+/** 特に注意:
+ * 1. display.hと display_pro.h 内のインターフェースの大部分は排他的です。特に明記されていない限り、混在して呼び出すことは推奨しません。
  */
 
-// overlay层操作接口:
+// overlay層操作インターフェース:
 int disp_init();
 void disp_release();
-void window_commit(void *ptr/*default BGR888*/, int imgWidth, int imgHeight, int imgRotation);	//内部调用rga，需要加锁使用
+void window_commit(void *ptr/*default BGR888*/, int imgWidth, int imgHeight, int imgRotation);	//内部で RGA を呼び出すため、ロックして使用する必要があります
 
-// primary层操作接口:
+// primary層操作インターフェース:
 int uiLayer_init();
 void uiLayer_release();
-void uiLayer_commit(void *ptr/*default BGR888*/, int imgWidth, int imgHeight);	//内部调用rga，需要加锁使用
+void uiLayer_commit(void *ptr/*default BGR888*/, int imgWidth, int imgHeight);	//内部で RGA を呼び出すため、ロックして使用する必要があります
 
-//调用此接口，overlay与primary层都会释放
+//このインターフェースを呼び出すと、overlay 層と primary 層の両方が解放されます
 void disp_exit(void);
 
 #ifdef __cplusplus

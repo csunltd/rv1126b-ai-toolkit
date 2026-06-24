@@ -77,17 +77,17 @@ int qr_decode(cv::Mat src, struct qrcode_info *p_info)
             
 
 
-            // 二维码坐标
+            // QR コード座標
             p_info->x1 = min_x;
             p_info->x2 = max_x;
             p_info->y1 = min_y;
             p_info->y2 = max_y;
 
-            // 二维码类型
+            // QR コードタイプ
             memset(p_info->type, 0, sizeof(p_info->type));
             memcpy(p_info->type, decodedFmt.c_str(), strlen(decodedFmt.c_str()));
 
-            // 二维码内容
+            // QR コード内容
             memset(p_info->result, 0, sizeof(p_info->result));
             memcpy(p_info->result, symbolData.c_str(), strlen(symbolData.c_str()));
 

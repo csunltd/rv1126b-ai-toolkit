@@ -30,7 +30,7 @@ void *getFrameThread(void *para)
         SrcFrame_t srcFrame = {0};
         ret = mipicamera_getSrcframe(pChannel->cameraIndex, &srcFrame);
         if (ret) {
-            /* DQBUF 失败时不能 QBUF，否则会损坏队列或崩溃 */
+            /* DQBUF が失敗した場合は QBUF してはいけません。キュー破損またはクラッシュの原因になります */
             printf("error: %s, %d\n", __func__, __LINE__);
             continue;
         }
@@ -65,9 +65,9 @@ DecChannel::DecChannel(int chnId, std::string strUrl, std::string strVedioFmt) :
 }
 DecChannel::~DecChannel()
 {
-    /*回收线程*/
-    // 1，等待取流线程跑起来
-    int timeOut_ms = 1500; //设置n(ms)超时，超时就不等了
+    /*スレッドを回収します*/
+    // 1. ストリーム取得スレッドが起動するまで待機します
+    int timeOut_ms = 1500; //n(ms) のタイムアウトを設定し、タイムアウトした場合は待機しません
     while(1){
         if((true == mGstChn.bGetFrameRunning)||(timeOut_ms <= 0)){
             break;
@@ -75,10 +75,10 @@ DecChannel::~DecChannel()
         timeOut_ms--;
         usleep(1000);
     }
-    // 2，退出线程并等待其结束
+    // 2. スレッドを終了し、終了完了を待機します
     if(mTid){
         mGstChn.bGetFrameRunning = false;
-        // --[等待取流线程结束]--
+        // --[ストリーム取得スレッドの終了を対象機します]--
         while(1) {
             usleep(20*1000);
             int32_t exitCode = pthread_join(mTid, NULL);
@@ -86,13 +86,13 @@ DecChannel::~DecChannel()
                 break;
             }else if(0 != exitCode){
                 switch (exitCode) {
-                    case ESRCH:  // 没有找到线程ID
+                    case ESRCH:  // スレッド ID が見つかりません
                         printf("getFrameThread exit: No thread with the given ID was found.\n");
                         break;
-                    case EINVAL: // 线程不可连接或已经有其他线程在等待它
+                    case EINVAL: // スレッドは join できないか、すでに他のスレッドが待機しています
                         printf("getFrameThread exit: Thread is detached or already being waited on.\n");
                         break;
-                    case EDEADLK: // 死锁 - 线程尝试join自己
+                    case EDEADLK: // デッドロック - スレッドが自分自身を join しようとしています
                         printf("getFrameThread exit: Deadlock detected - thread is trying to join itself.\n");
                         break;
                 }
@@ -107,16 +107,16 @@ DecChannel::~DecChannel()
 }
 int DecChannel::init()
 {
-    mGstChn.cameraIndex = atoi(mStrUrl.c_str()); //通常csi0是video23, csi1是video31
+    mGstChn.cameraIndex = atoi(mStrUrl.c_str()); //通常、csi0 は video23、csi1 は video31 です
     
-    // 1.打开摄像头
+    // 1.カメラを開きます
     int ret = mipicamera_init(mGstChn.cameraIndex, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
     if (ret) {
         printf("error: %s, %d\n", __func__, __LINE__);
         return -1;
     }
     
-    // 2.跳过前10帧
+    // 2.先頭 10 フレームをスキップします
     char *pbuf = (char *)malloc(IMAGE_SIZE);
     if(pbuf){
         int skip = 10;

@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 //system resource view api
-typedef struct cpu_occupy_ //定义一个cpu occupy的结构体
+typedef struct cpu_occupy_ //cpu occupy 構造体を定義します
 {
     char name[20];
     uint32_t user;

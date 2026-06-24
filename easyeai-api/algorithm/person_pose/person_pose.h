@@ -6,7 +6,7 @@
 
 
 
-/**< @brief person pose模型结构体 */
+/**< @brief person poseモデル構造体 */
 typedef struct {
     rknn_context rknn_ctx;
     rknn_input_output_num io_num;
@@ -22,7 +22,7 @@ typedef struct {
 } person_pose_context_t;
 
 
-/**< @brief person pose检测和分割结果 */
+/**< @brief person pose検出およびセグメンテーション結果 */
 typedef struct {
 	int		cls_id;
 	int		left;
@@ -39,33 +39,33 @@ extern "C" {
 #endif
 
 	/**
-	* @brief  person pose 初始化函数
+	* @brief  person pose 初期化関数
 	*
-	* @param[in]		p_model_path			pose init rknn模型地址
-	* @param[i/o]		p_person_pose			person pose模型上下文
-	* @param[in]		cls_num					类别数
-	* @return									模型初始化结果，0成功，负值失败
+	* @param[in]		p_model_path			pose init rknnモデルパス
+	* @param[i/o]		p_person_pose			person poseモデルコンテキスト
+	* @param[in]		cls_num					クラス数
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
 	int person_pose_init(const char *p_model_path, person_pose_context_t *p_person_pose, int cls_num);
 
 
 	/**
-	* @brief  person pose 运行函数
+	* @brief  person pose 実行関数
 	*
-	* @param[in]		image					待检测图片
-	* @param[in]		p_person_pose			person pose模型上下文
-	* @param[in]		nms_threshold			NMS阈值
-	* @param[in]		conf_threshold			置信度阈值
-	* @return									检测和姿态估计结果
+	* @param[in]		image					検出対象画像
+	* @param[in]		p_person_pose			person poseモデルコンテキスト
+	* @param[in]		nms_threshold			NMS しきい値
+	* @param[in]		conf_threshold			信頼度しきい値
+	* @return									検出および姿勢推定結果
 	*/
 	std::vector<person_pose_result_t> person_pose_run(cv::Mat image, person_pose_context_t *p_person_pose, float nms_threshold, float conf_threshold);
 
 
 	/**
-	* @brief  rknn person pose释放函数
+	* @brief  rknn person pose解放関数
 	*
-	* @param[i/o]		p_person_pose			person pose模型上下文
-	* @return									模型释放结果
+	* @param[i/o]		p_person_pose			person poseモデルコンテキスト
+	* @return									モデル解放結果
 	*/
 	int person_pose_release(person_pose_context_t* p_person_pose);
 

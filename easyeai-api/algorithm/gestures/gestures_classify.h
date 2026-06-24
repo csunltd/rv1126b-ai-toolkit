@@ -4,7 +4,7 @@
 #include "rknn_api.h"
 #include "opencv2/opencv.hpp"
 
-/**< @brief mobilenet v4图像分类 */
+/**< @brief mobilenet v4画像分類 */
 typedef struct {
     rknn_context rknn_ctx;
     rknn_input_output_num io_num;
@@ -21,32 +21,32 @@ extern "C" {
 #endif
 
    /**
-	* @brief  rknn gestures_classify模型初始化
+	* @brief  rknn gestures_classifyモデル初期化
 	*
-	* @param[in]		p_model_path			gestures_classify rknn模型地址
-	* @param[i/o]		p_mv4			        gestures_classify 模型上下文
-	* @return									模型初始化结果，0成功，负值失败
+	* @param[in]		p_model_path			gestures_classify rknnモデルパス
+	* @param[i/o]		p_mv4			        gestures_classify モデルコンテキスト
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
     int rknn_gestures_classify_init(const char *p_model_path, rknn_gestures_classify_context_t *p_mv4);
 
 
    /**
-	* @brief  rknn gestures_classify图像分类
+	* @brief  rknn gestures_classify画像分類
 	*
-    * @param[in]		p_mv4			        gestures_classify模型上下文
-	* @param[in]		image					待分类图片
-	* @param[i/o]		label			        分类类别
-	* @param[i/o]		score			        分类置信度
-	* @return									计算结果状态：0成功，负值失败
+    * @param[in]		p_mv4			        gestures_classifyモデルコンテキスト
+	* @param[in]		image					対象分類画像
+	* @param[i/o]		label			        分類クラス
+	* @param[i/o]		score			        分類信頼度
+	* @return									計算結果ステータス。0 は成功、負の値は失敗を表します
 	*/
     int rknn_gestures_classify_calc(rknn_gestures_classify_context_t *p_mv4, cv::Mat image, int &label, float &score);
 
 
    /**
-	* @brief  rknn gestures_classify模型释放
+	* @brief  rknn gestures_classifyモデル解放
 	*
-	* @param[i/o]		p_mv4			        gestures_classify模型上下文
-	* @return									模型释放结果：0成功，负值失败
+	* @param[i/o]		p_mv4			        gestures_classifyモデルコンテキスト
+	* @return									モデル解放結果。0 は成功、負の値は失敗を表します
 	*/
     int rknn_gestures_classify_deinit(rknn_gestures_classify_context_t *p_mv4);
 

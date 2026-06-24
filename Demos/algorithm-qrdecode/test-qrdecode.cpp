@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	qr_decode(image, &info);
 
 	gettimeofday(&end,NULL);
-	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//微秒
+	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//マイクロ秒
 	printf("time_use is %f\n",time_use/1000);
 
 	printf("x1:%d\n", info.x1);

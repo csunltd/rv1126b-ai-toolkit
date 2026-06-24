@@ -28,18 +28,18 @@ int32_t ini_read_int(const char *file, const char *pSection, const char *pKey)
 {
     int32_t value = -1;
     
-    //文件是否存在
+    //ファイルが存在するか確認します
     if (access(file, F_OK) == -1)
         return value;
     
-    //打开文件
+    //ファイルを開きます
     ini_fd_t ini_file = ini_open(file, "r", ";");
     if (ini_file == 0){
         printf("ini_open %s error!,%s\n", file, strerror(errno));
         return value;
     }
     
-    //读取配置信息
+    //設定情報を読み込みます
     ini_locateHeading(ini_file, pSection);
     ini_locateKey(ini_file, pKey);
     
@@ -49,7 +49,7 @@ int32_t ini_read_int(const char *file, const char *pSection, const char *pKey)
         printf("ini_readInt error!,%s,[%s]->%s\n",strerror(errno), pSection, pKey);
     }
     
-    //关闭文件
+    //ファイルを閉じます
     ini_close(ini_file);
     
     return value;
@@ -60,18 +60,18 @@ const char *ini_read_string(const char *file, const char *pSection, const char *
     const char *retStr = NULL;
     static char strValue[256] = {0};
     
-    //文件是否存在
+    //ファイルが存在するか確認します
     if (access(file, F_OK) == -1)
         return retStr;
     
-    //打开文件
+    //ファイルを開きます
     ini_fd_t ini_file = ini_open(file, "r", ";");
     if (ini_file == 0) {
         printf("ini_open %s error!,%s\n", file, strerror(errno));
         return retStr;
     }
     
-    //读取配置信息
+    //設定情報を読み込みます
     ini_locateHeading(ini_file, pSection);
     ini_locateKey(ini_file, pKey);
     
@@ -83,7 +83,7 @@ const char *ini_read_string(const char *file, const char *pSection, const char *
         retStr = strValue;
     }
     
-    //关闭文件
+    //ファイルを閉じます
     ini_close(ini_file);
     
     return retStr;
@@ -92,19 +92,19 @@ const char *ini_read_string(const char *file, const char *pSection, const char *
 int32_t ini_write_int(const char *file, const char *pSection, const char *pKey, int Val)
 {
     int ret = -1;
-#if 1    //可不要。注释掉就是没有文件则强制创建
-    //文件是否存在
+#if 1    //不要な場合があります。コメントアウトすると、ファイルが存在しない場合に強制的に作成します
+    //ファイルが存在するか確認します
     if (access(file, F_OK) == -1)
         return ret;
 #endif
-    //打开文件
+    //ファイルを開きます
     ini_fd_t ini_file = ini_open(file, "wb", ";");
     if (ini_file == 0) {
         printf("ini_open error!,%s\n", strerror(errno));
         return ret;
     }
     
-    //写入配置信息
+    //設定情報を書き込みます
     ini_locateHeading(ini_file, pSection);
     ini_locateKey(ini_file, pKey);
     
@@ -115,7 +115,7 @@ int32_t ini_write_int(const char *file, const char *pSection, const char *pKey, 
         ret = 0;
     }
     
-    //关闭文件
+    //ファイルを閉じます
     ini_close(ini_file);
     
     return ret;
@@ -125,19 +125,19 @@ int32_t ini_write_int(const char *file, const char *pSection, const char *pKey, 
 int32_t ini_write_string(const char *file, const char *pSection, const char *pKey, const char *pStr)
 {
     int32_t ret = -1;
-#if 1    //可不要。注释掉就是没有文件则强制创建
-    //文件是否存在
+#if 1    //不要な場合があります。コメントアウトすると、ファイルが存在しない場合に強制的に作成します
+    //ファイルが存在するか確認します
     if (access(file, F_OK) == -1)
         return ret;
 #endif
-    //打开文件
+    //ファイルを開きます
     ini_fd_t ini_file = ini_open(file, "w", ";");
     if (ini_file == 0) {
         printf("ini_open error!\n");
         return ret;
     }
     
-    //写入配置信息
+    //設定情報を書き込みます
     ini_locateHeading(ini_file, pSection);
     ini_locateKey(ini_file, pKey);
     
@@ -148,7 +148,7 @@ int32_t ini_write_string(const char *file, const char *pSection, const char *pKe
         ret = 0;
     }
     
-    //关闭文件
+    //ファイルを閉じます
     ini_close(ini_file);
     
     return ret;

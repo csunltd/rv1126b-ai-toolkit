@@ -25,7 +25,7 @@ using namespace cv;
 
 long StrToQRCode(const char *file, const char *pStr)
 {
-    // 使用qrencode进行字符串编码
+    // qrencode を使用して文字列をエンコードします
     QRcode * code = QRcode_encodeString(pStr, 0, QR_ECLEVEL_H, QR_MODE_8, 1);
     if (code == NULL) {
         return -1;
@@ -49,7 +49,7 @@ long StrToQRCode(const char *file, const char *pStr)
     cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
     //建立roi
     cv::Rect roi_rect = cv::Rect((result.rows - img.rows) / 2, (result.cols - img.rows) / 2, img.cols, img.rows);
-    //roi关联到目标图像，并把源图像复制到指定roi
+    //ROI をターゲット画像に関連付け、ソース画像を指定 ROI へコピーします
     img.copyTo(result(roi_rect));
 
     cv::imwrite(file, result);

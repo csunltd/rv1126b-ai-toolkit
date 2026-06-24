@@ -84,7 +84,7 @@ int alloc_dmabuf(size_t dma_size, int *dma_fd, void **pBuf_Map)
 	return -1;
 }
 
-// 缓存同步，将CPU缓存中的数据同步到设备，每通过mmap修改后，都需要这样同步进去
+// キャッシュ同期。CPU キャッシュ内のデータをデバイスへ同期します。mmap で変更するたびに、この方法で同期する必要があります
 int dma_sync_cpu_to_device(int fd)
 {
 	struct dma_buf_sync sync;
@@ -118,7 +118,7 @@ int srcImg_ConvertTo_dstImg(Image *pDst, Image *pSrc)
 		return -1;
 	}
 
-	//图像参数转换
+	//画像パラメータを変換します
 	memset(&src, 0, sizeof(rga_info_t));
 	src.fd = pSrc->fd;
 	src.virAddr = pSrc->pBuf;

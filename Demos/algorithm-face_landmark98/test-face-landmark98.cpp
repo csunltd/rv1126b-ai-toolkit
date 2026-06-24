@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 
 	face_detect_init(&detect_ctx, "./face_detect.model");
 
-	/* 人脸关键点定位初始化 */
+	/* 顔ランドマーク位置推定を初期化します */
 	rknn_face_landmark_context_t face_landmark;
 
 	ret = face_landmark98_init(&face_landmark, "./face_landmark98.model");
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 	face_detect_run(detect_ctx, src, result);
 
 	gettimeofday(&end,NULL);
-	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//微秒
+	time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//マイクロ秒
 	printf("face_detect time_use is %f\n",time_use/1000);
 
 	printf("face num:%d\n", (int)result.size());
@@ -76,12 +76,12 @@ int main(int argc, char **argv)
 		int h = (int)(result[i].box.height);
 		int max = (w > h)?w:h;
 
-		// 判断图像裁剪是否越界
+		// 画像の切り出し範囲が境界を超えていないか確認します
 		if( (x < 0) || (y < 0) || ((x +max) > src.cols) || ((y +max) > src.rows) ) {
 			continue;
 		}
 		
-		// 人脸位置
+		// 顔位置
 		cv::Rect rect(x, y, w, h);
 		cv::Mat face_roi =src(rect).clone();
 		
@@ -89,10 +89,10 @@ int main(int argc, char **argv)
 		std::vector<cv::Point> keys = face_landmark98_run(&face_landmark, face_roi);
 
 		gettimeofday(&end,NULL);
-		time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//微秒
+		time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//マイクロ秒
 		printf("face_landmark time_use is %f\n",time_use/1000);
 
-		// 原图位置
+		// 元画像上の位置
 		for (int i = 0; i < (int)keys.size(); i++) {
 			keys[i].x += rect.x;
 			keys[i].y += rect.y;
@@ -110,10 +110,10 @@ int main(int argc, char **argv)
 
 	cv::imwrite("result.jpg", src);
 
-	/* 人脸检测释放 */
+	/* 顔検出を解放します */
 	face_detect_release(detect_ctx);
 
-	/* 人脸关键点定位释放 */
+	/* 顔ランドマーク位置推定を解放します */
 	face_landmark98_release(&face_landmark);
 
 	return 0;

@@ -1,9 +1,9 @@
 ##
-## 说明：
-## 本子模块(api.pri)用于：用户针对easyeai_api的拓展封装，或者自定义补充封装
+## 説明：
+## 本サブモジュール（api.pri）は、ユーザーが easyeai_api に対して拡張ラッパーまたはカスタム補助ラッパーを追加するために使用します
 ##
 
-## Qt工程  针对easyapi_api目录与库的引用
+## Qt プロジェクトで easyapi_api ディレクトリおよびライブラリを参照します
 ## ========================== easyeai_api ========================== ##
 MEDIA_DIR = $$PWD/../../../../easyeai-api/media
 COMMONAPI_DIR = $$PWD/../../../../easyeai-api/common
@@ -20,7 +20,7 @@ HEADERS += \
 SOURCES += \
     $${COMMONAPI_DIR}/system_opt/*.cpp \
 
-## 有些API需要依赖某些系统库(如-lpthread)，要注意通过LIBS变量加上:
+## 一部の API はシステムライブラリ（例：-lpthread）に依存するため、LIBS 変数で追加してください：
 LIBS += -L$${MEDIA_DIR}/display/ -ldisplay -lrga -ldrm
 LIBS += -lpthread
 ## ================================================================= ##

@@ -14,12 +14,12 @@
 
 #include "../analyzer/analyzer.h"
 
-// 错误处理函数
+// エラー処理関数
 static gboolean on_error(GstBus *bus, GstMessage *message, gpointer data) {
     GError *err;
     gchar *debug_info;
 
-    // 解析错误消息
+    // エラーメッセージを解析します
     gst_message_parse_error(message, &err, &debug_info);
     
     g_printerr("Error received from element %s: %s\n", GST_OBJECT_NAME(message->src), err->message);
@@ -28,7 +28,7 @@ static gboolean on_error(GstBus *bus, GstMessage *message, gpointer data) {
     g_error_free(err);
     g_free(debug_info);
 
-    // 返回FALSE表示从消息处理队列中删除消息
+    // FALSE を返すと、メッセージ処理キューからメッセージが削除されます
     return TRUE;
 }
 
@@ -53,7 +53,7 @@ static void pad_added_handler (GstElement *src, GstPad *new_pad, GstChannel_t *d
     GstCaps *new_pad_caps = gst_pad_get_current_caps (new_pad);
     GstStructure *new_pad_struct = gst_caps_get_structure(new_pad_caps, 0);
 
-    //把Pads的信息都打印出来
+    //Pads の情報をすべて出力します
     gst_structure_foreach(new_pad_struct, print_pad_info, (gpointer)"     ");
     
     const gchar *new_pad_type = gst_structure_get_name(new_pad_struct);
@@ -112,7 +112,7 @@ static GstFlowReturn new_sample(GstElement *sink, gpointer user_data){
     g_signal_emit_by_name(sink, "pull-sample", &sample);
     if (sample){
         FrameDesc_t stFrameDesc;
-        //提取一帧sample中的buffer, 注意:这个buffer是无法直接用的,它不是char类型
+        //sample から 1 フレーム分の buffer を抽出します。注意：この buffer は直接使用できず、char 型ではありません
         GstBuffer *buffer = gstopt_sample_get_buffer(sample, &stFrameDesc);		
         if(!buffer){
             g_print ("gst_sample_get_buffer fail\n");
@@ -120,7 +120,7 @@ static GstFlowReturn new_sample(GstElement *sink, gpointer user_data){
             return GST_FLOW_ERROR;
         }
         
-        //把buffer映射到map，这样我们就可以通过map.data取到buffer的数据
+        //buffer を map にマッピングすると、map.data から buffer データを取得できます
         GstMapInfo map;
         if (gst_buffer_map (buffer, &map, GST_MAP_READ)){
             // g_print("data size = %ld , info_size = %ld\n", map.size, GST_VIDEO_INFO_SIZE(&video_info));
@@ -134,9 +134,9 @@ static GstFlowReturn new_sample(GstElement *sink, gpointer user_data){
             strcpy(imgDesc.fmt, stFrameDesc.strFmt);
             videoOutHandle((char *)map.data, imgDesc);
             
-            gst_buffer_unmap (buffer, &map);	//解除映射
+            gst_buffer_unmap (buffer, &map);	//マッピングを解除します
         }
-        gst_sample_unref (sample);	//释放资源
+        gst_sample_unref (sample);	//リソースを解放します
         return GST_FLOW_OK;
     }
     return GST_FLOW_OK ;
@@ -151,7 +151,7 @@ void *busListen(void *para)
         
     /* Listen to the bus */
     GstBus *bus = gst_element_get_bus (pPipeLine);
-    // 连接到错误信号
+    // エラーシグナルに接続します
     gst_bus_add_signal_watch(bus);
     g_signal_connect(bus, "message::error", G_CALLBACK(on_error), NULL);
     
@@ -285,18 +285,18 @@ int DecChannel::createVideoDecChannel()
         return -1;
     }
 
-#if 0 //由于图像缩放比较吃CPU，因此这里暂不开放
-    // vCapsfilter要与vScale搭配使用，此处操作是设置vScale的属性，例如 width 和 height。
-    // <==> gst-launch-1.0命令的"... ! videoscale ! video/x-raw,width=1280,height=720 ! ..."
+#if 0 //画像スケーリングは CPU 負荷が高いため、ここではまだ有効化しません
+    // vCapsfilter は vScale と組み合わせて使用します。ここでは width や height などの vScale プロパティを設定します。
+    // <==> gst-launch-1.0コマンドの"... ! videoscale ! video/x-raw,width=1280,height=720 ! ..."
     GstCaps *caps = gst_caps_new_simple("video/x-raw",   "width",G_TYPE_INT,1280,   "height",G_TYPE_INT,720,   NULL);
     g_object_set(mGstChn.vCapsfilter, "caps", caps, NULL);
     gst_caps_unref(caps);
 #endif
 
-//  用appsink接住输出的视频流，用作后续处理
+//  appsink で出力映像ストリームを受け取り、後続処理に使用します
 //  参考：https://blog.csdn.net/qq_41563600/article/details/121257849
 #if 0
-    // 把解码器的输出也要对应改成BGR格式
+    // デコーダの出力も対応して BGR 形式に変更する必要があります
     g_object_set(mGstChn.vDec, "format", GST_VIDEO_FORMAT_BGR, NULL);
     //GstCaps *caps = gst_caps_new_simple("video/x-raw",   "format",G_TYPE_STRING,"BGR",   NULL);
     GstCaps *caps = gst_caps_from_string(g_strdup_printf("video/x-raw,format=BGR"));
@@ -309,7 +309,7 @@ int DecChannel::createVideoDecChannel()
     g_object_set(mGstChn.vSink, "emit-signals", TRUE, NULL);
     g_signal_connect(mGstChn.vSink, "new-sample", G_CALLBACK(new_sample), &mGstChn);
 
-    // 把一个个【元素】添加进【管线】
+    // 各【要素】を【パイプライン】に追加します
     gst_bin_add(GST_BIN(mGstChn.pipeline), mGstChn.h26xRTPDepay);
     gst_bin_add(GST_BIN(mGstChn.pipeline), mGstChn.h26xParse);
     gst_bin_add(GST_BIN(mGstChn.pipeline), mGstChn.vDec);

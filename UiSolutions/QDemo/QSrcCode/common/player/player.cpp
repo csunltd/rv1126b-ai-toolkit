@@ -34,19 +34,19 @@ static Result_t Result;
 
 static Mat algorithm_image;
 static pthread_mutex_t img_lock;
-// 目标识别线程
+// 対象認識スレッド
 void *main_thread_entry(void *para)
 {
     int ret;
     Result_t *pResult = (Result_t *)para;
 
-    // 人员检测初始化
+    // 人物検出を初期化します
 //    rknn_context ctx;
 //    person_detect_init(&ctx, "person_detect.model");
 
     Mat image = cv::imread("./background.jpg", 1);
 
-    // 初始化屏幕
+    // 初期化画面
     bool bScreenInites = false;
     if (0 == disp_init()) {
         bScreenInites = true;
@@ -56,7 +56,7 @@ void *main_thread_entry(void *para)
         
 	window_commit(image.data, image.cols, image.rows, 0/*HAL_TRANSFORM_ROT_90*/);
     }else{
-        fprintf(stderr, "屏幕初始化失败\n");
+        fprintf(stderr, "画面の初期化に失敗しました\n");
     }
 
     mThreadWorking = true;
@@ -75,7 +75,7 @@ void *main_thread_entry(void *para)
         image = algorithm_image.clone();
         pthread_mutex_unlock(&img_lock);
 #if 0
-        // 算法分析
+        // アルゴリズム解析
         ret = person_detect_run(ctx, image, &pResult->algoRes[0].detect_Group);
         if(0 != ret){
             usleep(1000);
@@ -95,9 +95,9 @@ void *main_thread_entry(void *para)
         msleep(16);
     }
 
-    /* 人员检测释放 */
+    /* 人物検出を解放します */
 //    person_detect_release(ctx);
-    /* 释放显示资源 */
+    /* 表示リソースを解放します */
     if(bScreenInites){
         screen_exit();
     }
@@ -116,9 +116,9 @@ void mainThread_start()
 
 void mainThread_stop()
 {
-    /*回收线程*/
-    // 1，等待取流线程跑起来
-    int timeOut_ms = 1000; //设置n(ms)超时，超时就不等了
+    /*スレッドを回収します*/
+    // 1. ストリーム取得スレッドが起動するまで待機します
+    int timeOut_ms = 1000; //n(ms) のタイムアウトを設定し、タイムアウトした場合は待機しません
     while(1){
         if((true == mThreadWorking)||(timeOut_ms <= 0)){
             break;
@@ -126,9 +126,9 @@ void mainThread_stop()
         timeOut_ms--;
         usleep(1000);
     }
-    // 2，退出线程并等待其结束
+    // 2. スレッドを終了し、終了完了を待機します
     mThreadWorking = false;
-    // --[等待分析线程结束]--
+    // --[解析スレッドの終了を対象機します]--
     while(1) {
         usleep(20*1000);
         int32_t exitCode = pthread_join(mTid, NULL);
@@ -136,13 +136,13 @@ void mainThread_stop()
             break;
         }else if(0 != exitCode){
             switch (exitCode) {
-                case ESRCH:  // 没有找到线程ID
+                case ESRCH:  // スレッド ID が見つかりません
                     printf("imgAnalyze_thread exit: No thread with the given ID was found.");
                     break;
-                case EINVAL: // 线程不可连接或已经有其他线程在等待它
+                case EINVAL: // スレッドは join できないか、すでに他のスレッドが待機しています
                     printf("imgAnalyze_thread exit: Thread is detached or already being waited on.");
                     break;
-                case EDEADLK: // 死锁 - 线程尝试join自己
+                case EDEADLK: // デッドロック - スレッドが自分自身を join しようとしています
                     printf("imgAnalyze_thread exit: Deadlock detected - thread is trying to join itself.");
                     break;
             }

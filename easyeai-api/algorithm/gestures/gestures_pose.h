@@ -6,7 +6,7 @@
 
 
 
-/**< @brief gestures pose模型结构使*/
+/**< @brief gestures poseモデル構造体*/
 typedef struct {
     rknn_context rknn_ctx;
     rknn_input_output_num io_num;
@@ -22,7 +22,7 @@ typedef struct {
 } rknn_gestures_pose_context_t;
 
 
-/**< @brief gestures pose检测和分割结果 */
+/**< @brief gestures pose検出およびセグメンテーション結果 */
 typedef struct {
 	int		cls_id;
 	int		left;
@@ -39,33 +39,33 @@ extern "C" {
 #endif
 
 	/**
-	* @brief  rknn gestures pose 初始化函敿
+	* @brief  rknn gestures pose 初期化関数
 	*
-	* @param[in]		p_model_path			gestures pose rknn模型地址
-	* @param[i/o]		p_gestures_pose			gestures pose模型上下斿
-	* @param[in]		cls_num					类别敿
-	* @return									模型初始化结果，0成功，负值失贿
+	* @param[in]		p_model_path			gestures pose rknnモデルパス
+	* @param[i/o]		p_gestures_pose			gestures poseモデルコンテキスト
+	* @param[in]		cls_num					クラス数
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
 	int rknn_gestures_pose_init(const char *p_model_path, rknn_gestures_pose_context_t *p_gestures_pose, int cls_num);
 
 
 	/**
-	* @brief  rknn gestures pose计算函数
+	* @brief  rknn gestures pose計算関数
 	*
-	* @param[in]		image					待检测图牿
-	* @param[in]		p_gestures_pose			gestures pose模型上下斿
-	* @param[in]		nms_threshold			NMS阈倿
-	* @param[in]		conf_threshold			置信度阈倿
-	* @return									检测和姿态估计结枿
+	* @param[in]		image					検出対象画像
+	* @param[in]		p_gestures_pose			gestures poseモデルコンテキスト
+	* @param[in]		nms_threshold			NMS しきい値
+	* @param[in]		conf_threshold			信頼度しきい値
+	* @return									検出および姿勢推定結果
 	*/
 	std::vector<rknn_gestures_pose_result_t> rknn_gestures_pose_calc(cv::Mat image, rknn_gestures_pose_context_t *p_gestures_pose, float nms_threshold, float conf_threshold);
 
 
 	/**
-	* @brief  rknn gestures pose释放函数
+	* @brief  rknn gestures pose解放関数
 	*
-	* @param[i/o]		p_gestures_pose			gestures pose模型上下斿
-	* @return									模型释放结果
+	* @param[i/o]		p_gestures_pose			gestures poseモデルコンテキスト
+	* @return									モデル解放結果
 	*/
 	int rknn_gestures_pose_deinit(rknn_gestures_pose_context_t* p_gestures_pose);
 

@@ -13,7 +13,7 @@ if((NOT "${arch_value}" STREQUAL "armv7l") AND (NOT "${arch_value}" STREQUAL "aa
     include ($ENV{HOME}/configs/cross.cmake)
 endif()
 
-#若要使用${CMAKE_SYSROOT}变量，project必须要在set(CMAKE_TOOLCHAIN_FILE "${HOST_DIR}/share/buildroot/toolchainfile.cmake")后面设置
+#${CMAKE_SYSROOT} 変数を使用する場合、project は set(CMAKE_TOOLCHAIN_FILE "${HOST_DIR}/share/buildroot/toolchainfile.cmake") の後に設定する必要があります
 project(${CURRENT_FOLDER})
 add_definitions(-Wall -Wpointer-arith)
 # use c++ 11
@@ -27,21 +27,21 @@ set(common_root    ${toolkit_root}/common)
 
 include (${algorithm_root}/face_detect/api.cmake)
 include (${algorithm_root}/face_landmark98/api.cmake)
-## api头文件路径
+## API ヘッダーファイルパス
 set(api_inc 
     ${FACE_DETECT_INCLUDE_DIRS}
     ${FACE_LANDMARK98_INCLUDE_DIRS} 
     )
-## api源文件路径
+## API ソースファイルパス
 file(GLOB api_srcs 
     
     )
-## api静态库文件路径
+## API 静的ライブラリファイルパス
 link_directories(
    ${FACE_DETECT_LIBS_DIRS}
    ${FACE_LANDMARK98_LIBS_DIRS} 
 )
-## 依赖的动态库文件
+## 依存する共有ライブラリファイル
 set(sysLib_list 
     ${FACE_DETECT_LIBS} 
     ${FACE_LANDMARK98_LIBS}

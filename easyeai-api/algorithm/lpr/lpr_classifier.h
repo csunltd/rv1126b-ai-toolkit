@@ -4,7 +4,7 @@
 #include "rknn_api.h"
 #include "opencv2/opencv.hpp"
 
-/**< @brief 车牌分类器 */
+/**< @brief ナンバープレート分類器 */
 typedef struct {
 	rknn_context rknn_ctx;
 	rknn_input_output_num io_num;
@@ -24,32 +24,32 @@ extern "C" {
 #endif
 
 	/**
-	* @brief  rknn 车牌分类初始化函数
+	* @brief  rknn ナンバープレート分類を初期化します関数
 	*
-	* @param[in]		p_model_path			车牌分类器模型地址
-	* @param[i/o]		p_cls					车牌分类器模型上下文
-	* @return									模型初始化结果，0成功，负值失败
+	* @param[in]		p_model_path			ナンバープレート分類器モデルパス
+	* @param[i/o]		p_cls					ナンバープレート分類器モデルコンテキスト
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
 	int rknn_lpr_classifer_init(const char *p_model_path, rknn_lpr_classifer_t *p_cls);
 
 
 	/**
-	* @brief  rknn 车牌分类识别函数
+	* @brief  rknn ナンバープレート分類認識関数
 	*
-	* @param[in]		image					待分类图片（BGR格式）
-	* @param[i/o]		p_cls					车牌分类器模型上下文
-	* @param[i/o]		label					类别标签：类别数为3，0蓝/1绿/2黄
-	* @param[i/o]		score					置信度评分
-	* @return									模型初始化结果，0成功，负值失败
+	* @param[in]		image					分類対象画像（BGR 形式）
+	* @param[i/o]		p_cls					ナンバープレート分類器モデルコンテキスト
+	* @param[i/o]		label					クラベル：クラス数は 3、0 青／1 緑／2 黄
+	* @param[i/o]		score					信頼度スコア
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
 	int rknn_lpr_classifer_calc(cv::Mat image, rknn_lpr_classifer_t *p_cls, int &label, float &score);
 
 
 	/**
-	* @brief  rknn  车牌分类释放函数
+	* @brief  rknn  ナンバープレート分類を解放します関数
 	*
-	* @param[i/o]		p_cls					车牌分类器模型上下文
-	* @return									模型释放结果
+	* @param[i/o]		p_cls					ナンバープレート分類器モデルコンテキスト
+	* @return									モデル解放結果
 	*/
 	int rknn_lpr_classifer_deinit(rknn_lpr_classifer_t *p_cls);
 

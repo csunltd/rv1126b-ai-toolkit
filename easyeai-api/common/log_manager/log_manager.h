@@ -23,29 +23,29 @@
 extern "C" {
 #endif
 
-#define PD_DEFAULT_LOG_PATH 	"/userdata/logs"	//日志的默认存放目录
+#define PD_DEFAULT_LOG_PATH 	"/userdata/logs"	//ログのデフォルト保存ディレクトリ
 
-// 定义打印形式 (每次只能选择其中一样)
-#define PRINT_TO_NONE	    0       // 不打印任何东西
-#define PRINT_TO_LOCAL      1       // 打印到本地shell
-#define PRINT_TO_FILE       2       // 打印到同名.log文件
+// 出力形式を定義します（一度に 1 つのみ選択できます）
+#define PRINT_TO_NONE	    0       // 何も出力しません
+#define PRINT_TO_LOCAL      1       // ローカル shell に出力します
+#define PRINT_TO_FILE       2       // 同名の .log ファイルに出力します
 
 extern int32_t printLog(char const *filePath, int lineNum, char const *funcName, int logLevel, char const *logCon, va_list args);
 extern int32_t preSet_defalut_log_path(const char *path);
 extern void log_manager_init(const char * const strConfigPath, const char * const strModuleName);
 
 
-// printfMsg仅头文件内部使用，不建议被外部调用
+// printfMsg はヘッダーファイル内部でのみ使用します。外部から呼び出すことは推奨しません
 inline int32_t printMsg(char const *filePath, int lineNum, char const *funcName, int logLevel, char const *logCon, ...){
     va_list args;
-    va_start(args, logCon); //把参数列表栈指针定位到logCon上
+    va_start(args, logCon); //パラメータリストのスタックポインタ位置を logCon に合わせます
     return printLog(filePath, lineNum, funcName, logLevel, logCon, args);
 }
-// 定义打印级别
-#define PRINT_LEVEL_NONE    0       // 不输出打印信息
-#define PRINT_LEVEL_ERROR   1       // 错误信息, 否定判断时添加
-#define PRINT_LEVEL_DEBUG   2       // 调试信息, 调试时添加
-#define PRINT_LEVEL_TRACE   3       // 堆栈跟踪, 跟踪时添加
+// 出力レベルを定義します
+#define PRINT_LEVEL_NONE    0       // 出力情報を表示しません
+#define PRINT_LEVEL_ERROR   1       // エラー情報, 否定判定時に追加します
+#define PRINT_LEVEL_DEBUG   2       // デバッグ情報。デバッグ時に追加します
+#define PRINT_LEVEL_TRACE   3       // スタックトレース。トレース時に追加します
 #define PRINT_TRACE(str, args...) \
 	printMsg(__FILE__, __LINE__, __FUNCTION__, PRINT_LEVEL_TRACE, str, ##args)
 #define PRINT_DEBUG(str, args...) \

@@ -24,34 +24,34 @@
 
 #include "font_engine.h"
  
-// 打开字库
+// フォントライブラリを開きます
 CvxText::CvxText(const char* freeType)
 {
     assert(freeType != NULL);
  
-    // 打开字库文件, 创建一个字体
+    // フォントライブラリファイルを開き、フォントを作成します
     if(FT_Init_FreeType(&m_library)) throw;
     if(FT_New_Face(m_library, freeType, 0, &m_face)) throw;
  
-    // 设置字体输出参数
+    // フォント出力パラメータを設定します
     restoreFont();
  
-    // 设置C语言的字符集环境
+    // C 言語の文字セット環境を設定します
     setlocale(LC_ALL, "");
 }
  
-// 释放FreeType资源
+// FreeType リソースを解放します
 CvxText::~CvxText()
 {
     FT_Done_Face(m_face);
     FT_Done_FreeType(m_library);
 }
  
-// 设置字体参数:
+// フォントパラメータを設定します:
 //
-// font         - 字体类型, 目前不支持
-// size         - 字体大小/空白比例/间隔比例/旋转角度
-// underline   - 下画线
+// font         - フォントタイプ。現在は未対応です
+// size         - フォントサイズ／空白比率／間隔比率／回転角度
+// underline   - 下線
 // diaphaneity   - 透明度
 void CvxText::getFont(int* type, cv::Scalar* size, bool* underline, float* diaphaneity)
 {
@@ -63,7 +63,7 @@ void CvxText::getFont(int* type, cv::Scalar* size, bool* underline, float* diaph
  
 void CvxText::setFont(int* type, cv::Scalar* size, bool* underline, float* diaphaneity)
 {
-    // 参数合法性检查
+    // パラメータの妥当性をチェックします
     if (type) {
         if(*type >= 0) m_fontType = *type;
     }
@@ -83,25 +83,25 @@ void CvxText::setFont(int* type, cv::Scalar* size, bool* underline, float* diaph
     FT_Set_Pixel_Sizes(m_face, (int)m_fontSize.val[0], 0);
 }
  
-// 恢复原始的字体设置
+// 元のフォント設定に戻します
 void CvxText::restoreFont()
 {
-    m_fontType = 0;            // 字体类型(不支持)
+    m_fontType = 0;            // フォントタイプ（未対応）
  
-    m_fontSize.val[0] = 20;      // 字体大小
-    m_fontSize.val[1] = 0.5;   // 空白字符大小比例
-    m_fontSize.val[2] = 0.1;   // 间隔大小比例
-    m_fontSize.val[3] = 0;      // 旋转角度(不支持)
+    m_fontSize.val[0] = 20;      // フォントサイズ
+    m_fontSize.val[1] = 0.5;   // 空白文字サイズ比率
+    m_fontSize.val[2] = 0.1;   // 間隔サイズ比率
+    m_fontSize.val[3] = 0;      // 回転角度（未対応）
  
-    m_fontUnderline   = false;   // 下画线(不支持)
+    m_fontUnderline   = false;   // 下線（未対応）
  
-    m_fontDiaphaneity = 1.0;   // 色彩比例(可产生透明效果)
+    m_fontDiaphaneity = 1.0;   // 色比率（透明効果を生成可能）
  
-    // 设置字符大小
+    // 文字サイズを設定します
     FT_Set_Pixel_Sizes(m_face, (int)m_fontSize.val[0], 0);
 }
  
-// 输出函数(颜色默认为白色)
+// 出力関数（デフォルト色は白）
 int CvxText::putText(cv::Mat& img, char* text, cv::Point pos)
 {
     return putText(img, text, pos, CV_RGB(255, 255, 255));
@@ -121,10 +121,10 @@ int CvxText::putText(cv::Mat& img, const char* text, cv::Point pos, cv::Scalar c
     for (i = 0; text[i] != '\0'; ++i) {
         wchar_t wc = text[i];
  
-        // 解析双字节符号
+        // 2 バイト文字を解析します
         if(!isascii(wc)) mbtowc(&wc, &text[i++], 2);
  
-        // 输出当前的字符
+        // 現在の文字を出力します
         putWChar(img, wc, pos, color);
     }
  
@@ -138,24 +138,24 @@ int CvxText::putText(cv::Mat& img, const wchar_t* text, cv::Point pos, cv::Scala
  
     int i;
     for(i = 0; text[i] != '\0'; ++i) {
-        // 输出当前的字符
+        // 現在の文字を出力します
         putWChar(img, text[i], pos, color);
     }
  
     return i;
 }
  
-// 输出当前字符, 更新m_pos位置
+// 現在の文字を出力し、m_pos 位置を更新します
 void CvxText::putWChar(cv::Mat& img, wchar_t wc, cv::Point& pos, cv::Scalar color)
 {
-    // 根据unicode生成字体的二值位图
+    // Unicode に基づいてフォントの 2 値ビットマップを生成します
     FT_UInt glyph_index = FT_Get_Char_Index(m_face, wc);
     FT_Load_Glyph(m_face, glyph_index, FT_LOAD_DEFAULT);
     FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_MONO);
  
     FT_GlyphSlot slot = m_face->glyph;
  
-    // 行列数
+    // 行数と列数
     int rows = slot->bitmap.rows;
     int cols = slot->bitmap.width;
  
@@ -171,7 +171,7 @@ void CvxText::putWChar(cv::Mat& img, wchar_t wc, cv::Point& pos, cv::Scalar colo
                     cv::Vec3b pixel = img.at<cv::Vec3b>(cv::Point(c, r));
                     cv::Scalar scalar = cv::Scalar(pixel.val[0], pixel.val[1], pixel.val[2]);
  
-                    // 进行色彩融合
+                    // 色ブレンドを行います
                     float p = m_fontDiaphaneity;
                     for (int k = 0; k < 4; ++k) {
                         scalar.val[k] = scalar.val[k]*(1-p) + color.val[k]*p;
@@ -185,7 +185,7 @@ void CvxText::putWChar(cv::Mat& img, wchar_t wc, cv::Point& pos, cv::Scalar colo
         }
     }
  
-    // 修改下一个字的输出位置
+    // 次の文字の出力位置を更新します
     double space = m_fontSize.val[0]*m_fontSize.val[1];
     double sep   = m_fontSize.val[0]*m_fontSize.val[2];
  
@@ -213,14 +213,14 @@ static int ToWchar(const char* &src, wchar_t* &dest, const char *code)
         return 0;
     }
 	
-	int w_size = 0; //字符数量
+	int w_size = 0; //文字数
 	if(0 == strcmp(code, CODE_UTF8)){
 		w_size = utf8_strlen(src) + 1;
 	}else if(0 == strcmp(code, CODE_GBK)){
 		w_size = 1;//gbk_strlen(src) + 1;
 	}
 	
-	// 每个UniCode占两个字节
+	// 各 Unicode は 2 バイトを占有します
 	char *pUniCodeStr = (char *)malloc(2*w_size);
 	
 	if(pUniCodeStr){
@@ -318,9 +318,9 @@ int32_t putText(uint8_t *imgData, uint32_t imgWidth, uint32_t imgHeight, const c
 	
 	image = cv::Mat(imgHeight, imgWidth, CV_8UC3, imgData);
 	
-	CvxText cvxText(pg_Font->fontLib);	//根据字库创建字体
+	CvxText cvxText(pg_Font->fontLib);	//フォントライブラリに基づいてフォントを作成します
 	
-    cv::Scalar size1{ (double)pg_Font->fontSize, 0.5, 0.1, 0 }; // (字体大小, 无效的, 字符间距, 无效的 }
+    cv::Scalar size1{ (double)pg_Font->fontSize, 0.5, 0.1, 0 }; // (フォントサイズ, 無効, 文字間隔, 無効 }
 	float alpha = (float)color.Alpha/255;
     cvxText.setFont(nullptr, &size1, nullptr, &alpha);
 

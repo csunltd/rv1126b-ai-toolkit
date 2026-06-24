@@ -20,7 +20,7 @@ int main(void)
 	
     ini_write_string(SYSTEM_CONFIG_PATH, "machineInfo", "HardwareVer", "1.0.001");
     ini_write_string(SYSTEM_CONFIG_PATH, "machineInfo", "SoftwareVer", "1.0.022");
-    ini_write_string(SYSTEM_CONFIG_PATH, "machineInfo", "ProductionDate", "2021-09-22");  //出厂日期
+    ini_write_string(SYSTEM_CONFIG_PATH, "machineInfo", "ProductionDate", "2021-09-22");  //出荷日
 
 	printf("====================   Before Read inifile :\n");
 	printf("HardwareVer: %s\n", HardwareVer);

@@ -118,7 +118,7 @@ static std::string sendDataToHttps(const char *server, const char *func, std::qu
         if (item.content.empty()) {
           //cout << "item.content.empty()" << endl;
 
-          ifstream  in("1.png", std::ios::in | std::ios::binary); //打开输入文件
+          ifstream  in("1.png", std::ios::in | std::ios::binary); //入力ファイルを開きます
           in.seekg(0, std::ios::end);
           contents.resize(in.tellg());
           in.seekg(0, std::ios::beg);
@@ -208,7 +208,7 @@ static std::string sendDataToHttp(const char *server, const char *func, std::que
         if (item.content.empty()) {
           //cout << "item.content.empty()" << endl;
 
-          ifstream  in("1.png", std::ios::in | std::ios::binary); //打开输入文件
+          ifstream  in("1.png", std::ios::in | std::ios::binary); //入力ファイルを開きます
           in.seekg(0, std::ios::end);
           contents.resize(in.tellg());
           in.seekg(0, std::ios::beg);
@@ -480,7 +480,7 @@ int32_t send_json_to_Http(const char *server, const char *func, const char *json
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1);
     
-    //打印调试信息
+    //デバッグ情報を出力します
     //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
     struct curl_slist *headers = NULL;
@@ -526,7 +526,7 @@ int32_t get_file_from_https(const char *url, const char *func, const char *fileP
         if(200 == res->status){
 //            int contentLength = atoi(res->get_header_value("Content-Length").c_str());
 //            printf("-- body length : %d\n", contentLength);
-            ofstream ofs(filePath, ios::out | ios::binary); //二进制保存文件
+            ofstream ofs(filePath, ios::out | ios::binary); //ファイルをバイナリ形式で保存します
 //            ofs.write(res->body.c_str(), contentLength);
             ofs << res->body;
             ofs.close();
@@ -555,7 +555,7 @@ int32_t get_file_from_http(const char *url, const char *func, const char *filePa
         if(200 == res->status){
 //            int contentLength = atoi(res->get_header_value("Content-Length").c_str());
 //            printf("-- body length : %d\n", contentLength);
-            ofstream ofs(filePath, ios::out | ios::binary); //二进制保存文件
+            ofstream ofs(filePath, ios::out | ios::binary); //ファイルをバイナリ形式で保存します
 //            ofs.write(res->body.c_str(), contentLength);
             ofs << res->body;
             ofs.close();

@@ -14,8 +14,8 @@ void decode_box_and_landmark(float* confident,
                              std::vector<std::vector<float>> &prior_data,
                              std::vector<det> &outputs);
 /*
-描述：
-    解码人脸框和人脸关键点
+説明：
+    顔枠と顔ランドマークをデコードします
 
 */
 

@@ -27,9 +27,9 @@ extern "C" {
 	/**
 	* @brief  face_landmark98_init
 	*
-	* @param[i/o]		p_face_landmark			face_landmark模型上下文
-	* @param[in]		p_model_path			face_landmark rknn模型地址
-	* @return									模型初始化结果，0成功，负值失败
+	* @param[i/o]		p_face_landmark			face_landmarkモデルコンテキスト
+	* @param[in]		p_model_path			face_landmark rknnモデルパス
+	* @return									モデル初期化結果。0 は成功、負の値は失敗を表します
 	*/
 	int face_landmark98_init(rknn_face_landmark_context_t *p_face_landmark, const char *p_model_path);
 
@@ -37,9 +37,9 @@ extern "C" {
 	/**
 	* @brief  face_landmark98_run
 	*
-	* @param[in]		p_face_landmark			face_landmark模型上下文
-	* @param[in]		image					待检测图片
-	* @return									人脸关键点
+	* @param[in]		p_face_landmark			face_landmarkモデルコンテキスト
+	* @param[in]		image					検出対象画像
+	* @return									顔ランドマーク
 	*/
 	std::vector<cv::Point> face_landmark98_run(rknn_face_landmark_context_t *p_face_landmark, cv::Mat image);
 
@@ -47,8 +47,8 @@ extern "C" {
 	/**
 	* @brief face_landmark_release
 	*
-	* @param[i/o]		p_face_landmark			face_landmark模型上下文
-	* @return									模型释放结果
+	* @param[i/o]		p_face_landmark			face_landmarkモデルコンテキスト
+	* @return									モデル解放結果
 	*/
 	int face_landmark98_release(rknn_face_landmark_context_t* p_face_landmark);
 

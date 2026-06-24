@@ -41,23 +41,23 @@ public:
 };
 
 /* 
- * 人脸检测初始化函数
- * ctx:输入参数,rknn_context句柄
- * path:输入参数,算法模型路径
+ * 顔検出を初期化します関数
+ * ctx:入力パラメータ,rknn_contextハンドル
+ * path:入力パラメータ,アルゴリズムモデルパス
  */
 int face_detect_init(rknn_context *ctx, const char *path);
 
 /* 
- * 人脸检测运行函数
- * ctx:输入参数, rknn_context句柄
- * input_image:输入参数, Opencv Mat格式图像
- * result：输出参数, 人脸检测的结果输出
+ * 顔検出実行関数
+ * ctx:入力パラメータ, rknn_contextハンドル
+ * input_image:入力パラメータ, Opencv Mat形式画像
+ * result：出力パラメータ, 顔検出結果を出力します
  */
 int face_detect_run(rknn_context ctx, cv::Mat &input_image, std::vector<det> &result);
 
 /* 
- * 人脸释放函数
- * ctx:输入参数, rknn_context句柄
+ * 顔検出解放関数
+ * ctx:入力パラメータ, rknn_contextハンドル
  */
 int face_detect_release(rknn_context ctx);
 

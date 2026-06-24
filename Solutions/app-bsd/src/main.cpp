@@ -34,7 +34,7 @@ static const SrcCfg_t SrcCfg_tab[] = {
 		.loaction  = "4",
 		.videoEncType = "NV12",
 		.audioEncType = "null",
-/* 目前demo仅适配了4路，另外4路注释不要打开
+/* 現在のデモは 4 チャンネルのみに対応しています。残り 4 チャンネルのコメントアウトは解除しないでください
 	}, {
 		.srcType   = "AHD",
 		.loaction  = "12",

@@ -11,7 +11,7 @@ if((NOT "${arch_value}" STREQUAL "armv7l") AND (NOT "${arch_value}" STREQUAL "aa
     include ($ENV{HOME}/configs/cross.cmake)
 endif()
 
-#若要使用${CMAKE_SYSROOT}变量，project必须要在set(CMAKE_TOOLCHAIN_FILE "${HOST_DIR}/share/buildroot/toolchainfile.cmake")后面设置
+#${CMAKE_SYSROOT} 変数を使用する場合、project は set(CMAKE_TOOLCHAIN_FILE "${HOST_DIR}/share/buildroot/toolchainfile.cmake") の後に設定する必要があります
 project(${CURRENT_FOLDER})
 add_definitions(-Wall -Wpointer-arith -Wno-unused-variable)
 # use c++ 11
@@ -33,7 +33,7 @@ include (${common_root}/font_engine/api.cmake)
 include (${meida_root}/rga/api.cmake)
 include (${meida_root}/display/api.cmake)
 include (${algorithm_root}/person_detect/api.cmake)
-## api头文件路径
+## API ヘッダーファイルパス
 set(api_inc 
     ${BASE64_INCLUDE_DIRS} 
     ${SYSOPT_INCLUDE_DIRS} 
@@ -43,21 +43,21 @@ set(api_inc
     ${DISPLAY_INCLUDE_DIRS} 
     ${PERSON_DETECT_INCLUDE_DIRS} 
     )
-## api源文件路径
+## API ソースファイルパス
 file(GLOB api_srcs 
     ${BASE64_SOURCE_DIRS} 
     ${SYSOPT_SOURCE_DIRS} 
     ${FONTENGINE_SOURCE_DIRS} 
     ${RGA_SOURCE_DIRS}
     )
-## api静态库文件路径
+## API 静的ライブラリファイルパス
 link_directories(
     ${LOGMANAGER_LIBS_DIRS} 
     ${FONTENGINE_LIBS_DIRS} 
     ${DISPLAY_LIBS_DIRS} 
     ${PERSON_DETECT_LIBS_DIRS} 
 )
-## api所依赖的库参数
+## API が依存するライブラリパラメータ
 set(sysLib_list 
     ${BASE64_LIBS} 
     ${SYSOPT_LIBS} 

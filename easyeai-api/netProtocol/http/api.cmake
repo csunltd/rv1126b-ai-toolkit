@@ -1,6 +1,6 @@
 
-##在/usr/share/cmake-3.18/Modules/目录下的Find*.cmake，都能通过这种方式被找到
-##具体的变量(如${CURL_INCLUDE_DIRS}、${CURL_LIBRARIES})会被定义在里面的相对应的Find*.cmake文件中(通常就写在开头的描述里)
+##/usr/share/cmake-3.18/Modules/ ディレクトリ配下の Find*.cmake は、この方法で検索できます
+##具体的な変数（例：${CURL_INCLUDE_DIRS}、${CURL_LIBRARIES}）は、対応する Find*.cmake ファイル内で定義されます（通常は先頭の説明に記載されています）
 find_package(CURL REQUIRED)
 
 # source code path

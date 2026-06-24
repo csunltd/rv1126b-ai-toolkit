@@ -6,13 +6,13 @@
 #include "gestures.h"
 
 
-/// 分类名称
+/// 分類名
 char gpp_gestures[27][100] = { "00-call", "01-dislike", "02-fist", "03-four", "04-grabbing", "05-grip", "06-like", "07-little_finger", "08-middle_finger",
 	"09-no_gesture", "10-ok", "11-one", "12-palm", "13-peace", "14-peace_inverted", "15-point", "16-rock", "17-stop", "18-stop_inverted", "19-three",
 	 "20-three_gun", "21-three2", "22-three3", "23-thumb_index", "24-two_up", "25-two_up_inverted", "26-gestures_bg" };
 
 
-/// 绘制手势
+/// ジェスチャーを描画します
 cv::Mat draw_image(cv::Mat image, std::vector<rknn_gestures_result_t> results)
 {
 	long unsigned int i =0;
@@ -44,7 +44,7 @@ cv::Mat draw_image(cv::Mat image, std::vector<rknn_gestures_result_t> results)
 	return image;
 }
 
-/// 主函数
+/// メイン関数
 int main(int argc, char **argv)
 {
     if (argc != 4) {
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     const char *p_img_path = argv[3];
 	printf("gesture pose model path = %s, gesture classify path = %s, image path = %s\n", p_gesture_pose_path, p_gesture_classify_path, p_img_path);
 
-	// 读取图片
+	// 画像を読み込みます
 	cv::Mat image = cv::imread(p_img_path);
 	  if(image.empty()){
         printf("Image is empty.\n");
@@ -65,12 +65,12 @@ int main(int argc, char **argv)
     }
 	printf("Image size = (%d, %d)\n", image.rows, image.cols);
 
-	// 手势识别初始化
+	// ジェスチャー認識を初期化します
 	int ret;
 	rknn_gestures_context_t gestures;
 	gestures_init(p_gesture_pose_path, p_gesture_classify_path, gestures, 1);
 
-	// 手势识别函数
+	// ジェスチャー認識関数
 	double start = static_cast<double>(cv::getTickCount());
 	
 	std::vector<rknn_gestures_result_t> results = gestures_run(gestures, image, 0.35, 0.35);
@@ -79,13 +79,13 @@ int main(int argc, char **argv)
 	double runtime = (end - start) / cv::getTickFrequency() * 1000;
 	std::cout << "Gestures run time: " << runtime << " ms" << std::endl;
 
-	// 绘制结果
+	// 結果を描画します
 	image = draw_image(image, results);
 	
 	cv::imwrite("result.jpg", image);
 	printf("Detect size = %ld\n", results.size());
 
-	// 内存释放
+	// メモリを解放します
     ret = gestures_release(gestures);
 
     return ret;

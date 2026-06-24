@@ -15,16 +15,16 @@ int main(int argc, char **argv)
 		printf("Example: %s speech_encoder.model speech_decoder.model filters.txt CN.txt cn 1-10-1_CN.wav\n", argv[0]);
 		return -1;
 	}
-	const char *p_encoder_path = argv[1];	// 编码模型地址
-	const char *p_decoder_path = argv[2];	// 解码模型地址
-	const char *p_filter_path = argv[3];	// 滤波器频谱
-	const char *p_vocab_path = argv[4];		// 词组文件
-	const char *p_task = argv[5];			// 识别语种（cn/en）
-	const char *p_audio_path = argv[6];		// 待识别音频
+	const char *p_encoder_path = argv[1];	// エンコーダモデルパス
+	const char *p_decoder_path = argv[2];	// デコーダモデルパス
+	const char *p_filter_path = argv[3];	// フィルタスペクトル
+	const char *p_vocab_path = argv[4];		// 語彙ファイル
+	const char *p_task = argv[5];			// 認識言語（cn/en）
+	const char *p_audio_path = argv[6];		// 認識対象音声
 	int task_code = 0;
 	std::vector<std::string> recognized_text;
 
-	// Tokenizer 预定义控制符号(切换语言或任务)
+	// Tokenizer の事前定義制御シンボル（言語またはタスクの切り替え）
 	if (strcmp(p_task, "en") == 0){
 		task_code = 50259;
 	}
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	
-	// 读取音频，并对音频进行处理
+	// 音声を読み込み、音声データを処理します
 	audio_buffer_t audio;
 	int ret = read_audio(p_audio_path, &audio);
 	if (ret != 0){
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 		ret = resample_audio(&audio, audio.sample_rate, SAMPLE_RATE);
 	}
 
-	// speech recognition初始化
+	// speech recognition を初期化します
 	rknn_whisper_t whisper;
 	ret = speech_recognition_init(p_encoder_path, p_decoder_path, p_filter_path, p_vocab_path, &whisper);
 
@@ -60,13 +60,13 @@ int main(int argc, char **argv)
 		clock_t start = clock();
 
 		recognized_text.clear();
-		// speech recognition语音识别
+		// speech recognition による音声認識
 		ret = speech_recognition_run(&whisper, audio, task_code, recognized_text);
 		
-		clock_t end = clock();  // 记录结束时间
-		double infer_time = ((double)(end - start)) / CLOCKS_PER_SEC;  // 转换为秒
+		clock_t end = clock();  // 終了時間を記録します
+		double infer_time = ((double)(end - start)) / CLOCKS_PER_SEC;  // 秒に変換します
 
-		// 结果输出
+		// 結果を出力します
 		std::cout << "\nspeech recognition output: ";
 		for (const auto &str : recognized_text){
 			std::cout << str;
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 		printf("%d, Real Time Factor (RTF): %.3f / %.3f = %.3f\n", iter++, infer_time, audio_length, rtf);
 	}
 
-	// speech recognition释放 
+	// speech recognition を解放します 
 	speech_recognition_release(&whisper);
 	return 0;
 }

@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 		printf("%s <image_path>\n", argv[0]);
 		return -1;
 	}
-	/* 参数初始化 */
+	/* パラメータ初期化 */
 	const char *img_path = argv[1];
 	Mat input_image, rgb_img;
 	input_image = imread(img_path);
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	memset(&ocr_det_ctx, 0, sizeof(rknn_app_context_t));
 	memset(&ocr_rec_ctx, 0, sizeof(rknn_app_context_t));
 
-	/* OCR算法检测模型&识别模型初始化 */
+	/* OCR アルゴリズムの検出モデルおよび認識モデルを初期化します */
 	ocr_det_init("ocr-det.model", &ocr_det_ctx);
 	ocr_rec_init("ocr-rec.model", &ocr_rec_ctx);  
 
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     struct timeval end;
     float time_use=0;
 
-	/* OCR算法检测模型运行 */
+	/* OCR アルゴリズムの検出モデルを実行します */
 	ocr_det_result results;
     ocr_det_postprocess_params params;
     params.threshold = THRESHOLD;
@@ -60,10 +60,10 @@ int main(int argc, char **argv)
     }
 
     gettimeofday(&end,NULL);
-    time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//微秒
+    time_use=(end.tv_sec-start.tv_sec)*1000000+(end.tv_usec-start.tv_usec);//マイクロ秒
     printf("time_use is %f\n",time_use/1000);
 
-	/* 截取文字信息和画框 */
+	/* 文字情報を切り出し、枠を描画します */
     printf("DRAWING OBJECT\n");
     for (int i = 0; i < results.count; i++)
     {
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 
 		cv::Mat rgb_crop_image = GetRotateCropImage(rgb_img, results.box[i]);
 
-		/* OCR算法识别模型运行 */
+		/* OCR アルゴリズムの認識モデルを実行します */
 		ocr_rec_result rec_results;
 		ocr_rec_run(&ocr_rec_ctx, rgb_crop_image, &rec_results);
 

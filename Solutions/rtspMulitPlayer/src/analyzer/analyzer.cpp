@@ -44,7 +44,7 @@ static int plot_one_box(Mat src, int x1, int x2, int y1, int y2, char *label, ch
 }
 static void paint_algorithm_result(Mat image, ChnResult_t result)
 {
-    // 把算法结果绘制在图像上
+    // アルゴリズム結果を画像上に描画します
     char text[256];
     for (int algoIndex = 0; algoIndex < ALGOMAXNUM; algoIndex++){
         for (int j = 0; j < result.algoRes[algoIndex].resNumber; j++) {
@@ -53,7 +53,7 @@ static void paint_algorithm_result(Mat image, ChnResult_t result)
                 continue;
             }
             
-            // 标出识别目标框
+            // 認識対象のボックスを描画します
             sprintf(text, "%s %.1f%%", det_result->name, det_result->prop * 100);
 #if 0
             printf("%s @ (%d %d %d %d) %f\n", det_result->name, det_result->box.left, det_result->box.top,
@@ -63,7 +63,7 @@ static void paint_algorithm_result(Mat image, ChnResult_t result)
             int y1 = det_result->box.top;
             int x2 = det_result->box.right;
             int y2 = det_result->box.bottom;
-            // 标出识别目标定位标记
+            // 認識対象の位置マーカーを描画します
             plot_one_box(image, x1, x2, y1, y2, text, j%10);
         }
     }
@@ -79,19 +79,19 @@ public:
     static Analyzer *instance() { return m_pSelf; }
     static void createAnalyzer(int32_t maxChn);
     
-    // --视频资源处理
-    // 1.更新某路[视频]通道图像数据
+    // --映像リソース処理
+    // 1.指定した［映像］チャンネルの画像データを更新します
     int32_t upDateVideoChannel(int chnId, char *imgData, ImgDesc_t imgDesc);
-    // 2.取某路[视频]通道图像数据地址
+    // 2.指定した［映像］チャンネルの画像データアドレスを取得します
     vChnObject *getVideoChnObject(int chnId);
     uint8_t* videoChannelData(vChnObject *pVideoObj, int &width, int &height);
-    // 3.取某路[视频]通道的分析结果
+    // 3.指定した［映像］チャンネルの解析結果を取得します
     int32_t videoChannelAnalyRes(int chnId);
 
-    // --音频资源处理
-    // 1.更新某路[音频]通道数据
-    // 2.取某路[音频]通道数据地址
-    // 3.取某路[音频]通道的分析结果
+    // --音声リソース処理
+    // 1.指定した［音声］チャンネルのデータを更新します
+    // 2.指定した［音声］チャンネルのデータアドレスを取得します
+    // 3.指定した［音声］チャンネルの解析結果を取得します
     
 
     bool mAnalyzeThreadWorking;
@@ -113,7 +113,7 @@ protected:
 private:
     static Analyzer *m_pSelf;
     
-    // 解码器输出数据 - RGB格式
+    // デコーダ出力データ - RGB 形式
 	std::list<vChnObject*> m_VideoChannellist;
 	//std::list<aChnObject*> m_MediaAudioChannellist;
 
@@ -142,17 +142,17 @@ static void *imgAnalyze_thread(void *para)
         
         vChnObject *pVideoObj = pSelf->getVideoChnObject(chnId);
         if(pVideoObj){
-            // 取出待分析图像
+            // 解析対象の画像を取り出します
             pthread_rwlock_rdlock(&pVideoObj->imgLock);
             pVideoObj->image.copyTo(image);
             pthread_rwlock_unlock(&pVideoObj->imgLock);
 
-            // 此步骤操作会比较耗时，因此在给pVideoObj->chnResult赋值时需要重新判断pVideoObj是否存在
+            // この処理は時間がかかるため、pVideoObj->chnResult に代入する際は pVideoObj が存在するか再確認する必要があります
             result = algorithm_process(chnId, image);
         }        
         pVideoObj = pSelf->getVideoChnObject(chnId);
         if(pVideoObj){
-            // 其实这里还是有可能会在切(不同分辨率)流时，会导致应用崩溃
+            // 実際には、ここで（異なる解像度の）ストリームを切り替える際にアプリケーションがクラッシュする可能性があります
             memcpy(&pVideoObj->chnResult, &result, sizeof(ChnResult_t));
         }
         
@@ -169,10 +169,10 @@ static void *imgDisplay_thread(void *para)
     Analyzer *pSelf = (Analyzer *)para;
 
     disp_init();
-    // --无信号通道显示内容
+    // --無シグナルチャンネルの表示内容
     bool bShowNoSig = true;
     Mat noSignal_img = imread("./noSignal.jpg", 1);
-    // --有信号通道显示设置
+    // --シグナルありチャンネルの表示設定
     int videoDuration = 30;//秒
     int preTimeStamp = get_timeval_ms();
     int curTimeStamp = preTimeStamp;
@@ -192,7 +192,7 @@ static void *imgDisplay_thread(void *para)
             break;
         }
 
-        // 每隔videoDuration秒切换一次通道
+        // videoDuration 秒ごとにチャンネルを切り替えます
         curTimeStamp = get_timeval_ms();
         if(videoDuration*1000 <= (curTimeStamp-preTimeStamp)){
             chnId++;
@@ -221,14 +221,14 @@ static void *imgDisplay_thread(void *para)
             dstImage.rotation = HAL_TRANSFORM_ROT_0;
             dstImage.pBuf = (void *)image.data;
             pthread_rwlock_rdlock(&pVideoObj->imgLock);
-            // 用rga快速复制一份待显示图像
+            // RGA を使用して表示対象画像を高速にコピーします
             srcImg_ConvertTo_dstImg(&dstImage, &srcImage);
-            // 提取分析结果
+            // 解析結果を抽出します
             memset(&result, 0, sizeof(ChnResult_t));
             memcpy(&result, &pVideoObj->chnResult, sizeof(ChnResult_t));
             pthread_rwlock_unlock(&pVideoObj->imgLock);
             
-            // 绘制分析结果到待显示图像
+            // 解析結果を表示対象画像に描画します
             paint_algorithm_result(image, result);
 
             window_commit(image.data, image.cols, image.rows, HAL_TRANSFORM_ROT_270);
@@ -252,11 +252,11 @@ Analyzer::Analyzer(int32_t maxChn) :
     mDisplayThreadWorking(false),
     mMaxChnNum(maxChn)
 {
-    /*初始化通道锁*/
+    /*チャンネルロックを初期化します*/
     pthread_mutex_init(&mVideoChnLock, NULL);
     //pthread_mutex_init(&mAudioChnLock, NULL);
     
-    /*创建线程*/
+    /*スレッドを作成します*/
     if(0 != CreateJoinThread(imgAnalyze_thread, this, &mAnalyzeTid)){
         return ;
     }
@@ -267,9 +267,9 @@ Analyzer::Analyzer(int32_t maxChn) :
 }
 Analyzer::~Analyzer()
 {
-    /*回收线程*/
-    // 1，等待取流线程跑起来
-    int timeOut_ms = 1000; //设置n(ms)超时，超时就不等了
+    /*スレッドを回収します*/
+    // 1. ストリーム取得スレッドが起動するまで待機します
+    int timeOut_ms = 1000; //n(ms) のタイムアウトを設定し、タイムアウトした場合は待機しません
     while(1){
         if(((true == mDisplayThreadWorking)&&(true == mAnalyzeThreadWorking))||(timeOut_ms <= 0)){
             break;
@@ -277,9 +277,9 @@ Analyzer::~Analyzer()
         timeOut_ms--;
         usleep(1000);
     }
-    // 2，退出线程并等待其结束
+    // 2. スレッドを終了し、終了完了を待機します
     mAnalyzeThreadWorking = false;
-    // --[等待分析线程结束]--
+    // --[解析スレッドの終了を対象機します]--
     while(1) {
         usleep(20*1000);
         int32_t exitCode = pthread_join(mAnalyzeTid, NULL);
@@ -287,13 +287,13 @@ Analyzer::~Analyzer()
             break;
         }else if(0 != exitCode){
             switch (exitCode) {
-                case ESRCH:  // 没有找到线程ID
+                case ESRCH:  // スレッド ID が見つかりません
                     PRINT_ERROR("imgAnalyze_thread exit: No thread with the given ID was found.");
                     break;
-                case EINVAL: // 线程不可连接或已经有其他线程在等待它
+                case EINVAL: // スレッドは join できないか、すでに他のスレッドが待機しています
                     PRINT_ERROR("imgAnalyze_thread exit: Thread is detached or already being waited on.");
                     break;
-                case EDEADLK: // 死锁 - 线程尝试join自己
+                case EDEADLK: // デッドロック - スレッドが自分自身を join しようとしています
                     PRINT_ERROR("imgAnalyze_thread exit: Deadlock detected - thread is trying to join itself.");
                     break;
             }
@@ -301,7 +301,7 @@ Analyzer::~Analyzer()
         }
     }
     mDisplayThreadWorking = false;
-    // --[等待显示线程结束]--
+    // --[表示スレッドの終了を対象機します]--
     while(1) {
         usleep(20*1000);
         int32_t exitCode = pthread_join(mDisplayTid, NULL);
@@ -309,13 +309,13 @@ Analyzer::~Analyzer()
             break;
         }else if(0 != exitCode){
             switch (exitCode) {
-                case ESRCH:  // 没有找到线程ID
+                case ESRCH:  // スレッド ID が見つかりません
                     PRINT_ERROR("imgDisplay_thread exit: No thread with the given ID was found.");
                     break;
-                case EINVAL: // 线程不可连接或已经有其他线程在等待它
+                case EINVAL: // スレッドは join できないか、すでに他のスレッドが待機しています
                     PRINT_ERROR("imgDisplay_thread exit: Thread is detached or already being waited on.");
                     break;
-                case EDEADLK: // 死锁 - 线程尝试join自己
+                case EDEADLK: // デッドロック - スレッドが自分自身を join しようとしています
                     PRINT_ERROR("imgDisplay_thread exit: Deadlock detected - thread is trying to join itself.");
                     break;
             }
@@ -323,11 +323,11 @@ Analyzer::~Analyzer()
         }
     }
 
-    /*回收视频资源*/
+    /*映像リソースを回収します*/
     delAllVideoChannel();
     pthread_mutex_destroy(&mVideoChnLock);
 
-    /*回收音频资源*/
+    /*音声リソースを回収します*/
     //delAllAudioChannel();
     //pthread_mutex_destroy(&mAudioChnLock);
 }
@@ -346,14 +346,14 @@ int32_t Analyzer::upDateVideoChannel(int chnId, char *imgData, ImgDesc_t imgDesc
     pthread_mutex_lock(&mVideoChnLock);
     vChnObject* targetObj = nullptr;
     for (auto it = m_VideoChannellist.begin(); it != m_VideoChannellist.end(); ++it) {
-        // 找到目标对象
+        // 対象オブジェクトが見つかりました
         if ((*it)->chnId == chnId) {
             targetObj = *it;  
             
-            // 图像信息改变，销毁原来图像缓存
+            // 画像情報が変更されたため、元の画像キャッシュを破棄します
             if((targetObj->image.cols != imgDesc.width)||(targetObj->image.rows != imgDesc.height)){
                 if(0 == releaseVideoChnObject(targetObj)){
-                    // 从链表中移除chnObj
+                    // リンクリストから chnObj を削除します
                     it = m_VideoChannellist.erase(it);
                 }else{
                     pthread_mutex_unlock(&mVideoChnLock);
@@ -365,7 +365,7 @@ int32_t Analyzer::upDateVideoChannel(int chnId, char *imgData, ImgDesc_t imgDesc
         }
     }
     
-    // 需要创建一个[视频]通道对象
+    // ［映像］チャンネルオブジェクトを作成する必要があります
     if (!targetObj) {
         targetObj = createVideoChnObject(chnId, imgDesc.width, imgDesc.height);
         if(!targetObj)
@@ -375,7 +375,7 @@ int32_t Analyzer::upDateVideoChannel(int chnId, char *imgData, ImgDesc_t imgDesc
     }
     pthread_mutex_unlock(&mVideoChnLock);
 
-    // 更新[视频]通道图像数据
+    // ［映像］チャンネルの画像データを更新します
     Image srcImage, dstImage;
     memset(&srcImage, 0, sizeof(srcImage));
     memset(&dstImage, 0, sizeof(dstImage));
@@ -410,7 +410,7 @@ vChnObject *Analyzer::getVideoChnObject(int chnId)
     vChnObject* targetObj = nullptr;
     pthread_mutex_lock(&mVideoChnLock);
     for (auto it = m_VideoChannellist.begin(); it != m_VideoChannellist.end(); ++it) {
-        // 找到目标对象
+        // 対象オブジェクトが見つかりました
         if ((*it)->chnId == chnId) {
             targetObj = *it;
             break;
@@ -424,15 +424,15 @@ vChnObject *Analyzer::getVideoChnObject(int chnId)
 
 vChnObject *Analyzer::createVideoChnObject(int32_t chnId, int32_t imgWidth, int32_t imgHeight)
 {
-    // 1. 创建通道对象
+    // 1. チャンネルオブジェクトを作成します
     vChnObject* newChnObj = new vChnObject;
     if(!newChnObj)
         return NULL;
     
-    // 2. 初始化图像数据读写锁
+    // 2. 画像データの読み書きロックを初期化します
     pthread_rwlock_init(&newChnObj->imgLock, nullptr);
     
-    // 3. 创建图像缓存
+    // 3. 画像キャッシュを作成します
     newChnObj->chnId = chnId;
     newChnObj->image = Mat(imgHeight, imgWidth, CV_8UC3, Scalar(0, 255, 0));
     memset(&newChnObj->chnResult, 0, sizeof(ChnResult_t));
@@ -446,15 +446,15 @@ int32_t Analyzer::releaseVideoChnObject(vChnObject *pObj)
     if(NULL == pObj)
         return -1;
     
-    // 1. 销毁Mat资源（OpenCV会自动管理）
+    // 1. Mat リソースを破棄します（OpenCV が自動管理）
     pthread_rwlock_wrlock(&pObj->imgLock);
     pObj->image.release();
     pthread_rwlock_unlock(&pObj->imgLock);
     
-    // 2. 销毁读写锁
+    // 2. 読み書きロックを破棄します
     pthread_rwlock_destroy(&pObj->imgLock);
     
-    // 3. 销毁通道对象
+    // 3. チャンネルオブジェクトを破棄します
     delete pObj;
     
     return 0;
@@ -475,10 +475,10 @@ int32_t Analyzer::delAllVideoChannel()
 
 int analyzer_init(int32_t maxChn)
 {
-    // 创建图像分析器
+    // 画像アナライザーを作成します
     Analyzer::createAnalyzer(maxChn);
     
-    // 模型初始化
+    // モデル初期化
     algorithm_init();
 
     return 0;

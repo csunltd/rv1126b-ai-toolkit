@@ -53,13 +53,13 @@ int plot_one_box(Mat src, int x1, int x2, int y1, int y2, char *label, char colo
     return 0;
 }
 
-// 目标识别线程
+// 対象認識スレッド
 void *detect_thread_entry(void *para)
 {
     int ret;
     Result_t *pResult = (Result_t *)para;
 	
-    // 人员检测初始化
+    // 人物検出を初期化します
     rknn_context ctx;
     person_detect_init(&ctx, "person_detect.model");
 	
@@ -74,7 +74,7 @@ void *detect_thread_entry(void *para)
         pthread_mutex_lock(&img_lock);
         image = algorithm_image.clone();
         pthread_mutex_unlock(&img_lock);
-        // 算法分析
+        // アルゴリズム解析
         ret = person_detect_run(ctx, image, &pResult->algoRes[0].detect_Group);
         if(0 != ret){
             usleep(1000);
@@ -93,7 +93,7 @@ void *detect_thread_entry(void *para)
 		
         usleep(16*1000);
     }
-    /* 人员检测释放 */
+    /* 人物検出を解放します */
     person_detect_release(ctx);
     return NULL;
 }
@@ -110,29 +110,29 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    // 目标识别线程相关变量
+    // 対象認識スレッド関連の変数
     pthread_t mTid;
     Result_t Result;
 
-    // camera原始图像相关变量
+    // camera の元画像関連の変数
     int skip = 0;
     char *pbuf = NULL;
     Mat image;
 
-    // 1.初始化显示屏
+    // 1.ディスプレイを初期化します
     if (0 != disp_init()) {
-        fprintf(stderr, "DRM初始化失败\n");
+        fprintf(stderr, "DRM の初期化に失敗しました\n");
         return -1;
     }
 
     char timestamp[64] = {0};
 
-    // 2.打开摄像头
+    // 2.カメラを開きます
 #define CAMERA_WIDTH    1920
 #define CAMERA_HEIGHT   1080
 #define	IMGRATIO        3
 #define	IMAGE_SIZE      (CAMERA_WIDTH*CAMERA_HEIGHT*IMGRATIO)
-    int cameraIndex = atoi(argv[1]); //通常csi0是video23, csi1是video31
+    int cameraIndex = atoi(argv[1]); //通常、csi0 は video23、csi1 は video31 です
     ret = mipicamera_init(cameraIndex, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
     if (ret) {
         printf("error: %s, %d\n", __func__, __LINE__);
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
         goto exit2;
     }
     
-    //跳过前10帧
+    //先頭 10 フレームをスキップします
     skip = 10;
     while(skip--) {
         ret = mipicamera_getframe(cameraIndex, pbuf);
@@ -157,14 +157,14 @@ int main(int argc, char **argv)
         }
     }
 	
-    // 3.创建识别线程，以及图像互斥锁
+    // 3.認識スレッドおよび画像ミューテックスを作成します
     pthread_mutex_init(&img_lock, NULL);
     memset(&Result, 0, sizeof(Result_t));
     CreateNormalThread(detect_thread_entry, &Result, &mTid);
 
-    // 4.(取流 + 显示)循环
+    // 4.（ストリーム取得 + 表示）ループ
     while(1) {
-        // 4.1、取流
+        // 4.1、ストリーム取得
         pthread_mutex_lock(&img_lock);
         ret = mipicamera_getframe(cameraIndex, pbuf);
         if(ret) {
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
         image = algorithm_image.clone();
         pthread_mutex_unlock(&img_lock);
 
-        // 4.2、显示
+        // 4.2、表示
         char text[256];
         for (int i = 0; i < Result.algoRes[0].resNumber; i++) {
             detect_result_t *det_result = &(Result.algoRes[0].detect_Group.results[i]);
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
                 continue;
             }
 
-           // 标出识别目标框
+           // 認識対象のボックスを描画します
            sprintf(text, "%s %.1f%%", det_result->name, det_result->prop * 100);
            printf("%s @ (%d %d %d %d) %f\n", det_result->name, det_result->box.left, det_result->box.top,
     			   det_result->box.right, det_result->box.bottom, det_result->prop);
@@ -192,7 +192,7 @@ int main(int argc, char **argv)
             int y1 = det_result->box.top;
             int x2 = det_result->box.right;
             int y2 = det_result->box.bottom;
-            // 标出识别目标定位标记
+            // 認識対象の位置マーカーを描画します
             /*
             rectangle(image, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(255, 0, 0, 255), 3);
             putText(image, text, cv::Point(x1, y1 + 12), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));

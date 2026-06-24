@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 #include <rga/RgaApi.h>
-#include "rga_wrapper.h" //要实现显示提速，需要用到dma内存，以及rga的0拷贝功能
+#include "rga_wrapper.h" //表示を高速化するには、DMA メモリおよび RGA のゼロコピー機能を使用する必要があります
 
 #include "display_pro.h"
 
@@ -22,8 +22,8 @@
 #define NUM_WINDOWS 3
 
 /**
- * 分配 DMA-BUF，将 720X1280 BGR888 测试图读入（mmap 地址），供 window_commit_pro 零拷贝使用。
- * 成功返回 0，并设置 *dmabuf_fd、*pBuf_Map、*out_size；失败返回 -1。
+ * DMA-BUF を割り当て、720x1280 BGR888 テスト画像を読み込み（mmap アドレス）、window_commit_pro のゼロコピー処理に使用します。
+ * 成功時は 0 を返し、*dmabuf_fd、*pBuf_Map、*out_size を設定します。失敗時は -1 を返します。
  */
 static int load_test_image(int *dmabuf_fd, void **pBuf_Map, size_t *out_size)
 {
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
 	(void)argc;
 	(void)argv;
-	// 1.分配好dma内存，方便后续显示时零拷贝使用，并提前加载好测试图像
+	// 1.後続の表示でゼロコピーを使用できるように DMA メモリを割り当て、テスト画像を事前に読み込みます
 	int dmabuf_fd = -1;
 	void *img_va = NULL;
 	size_t img_size = 0;
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 	
-	// 2.初始化屏幕硬件，并创建display区域
+	// 2.画面ハードウェアを初期化し、display 領域を作成します
 	if (0 != screen_init()){
 		goto exit;
 	}
@@ -120,12 +120,12 @@ int main(int argc, char *argv[])
 		if (window_commit_pro(i, &frame) != 0)
 			fprintf(stderr, "window_commit_pro(%d) failed\n", i);
 	}
-    window_commit_pro(0, &frame); //--用于确认显示顺序是否按预期进行
+    window_commit_pro(0, &frame); //--表示順序が想定どおりか確認するために使用します
 
 	if (window_refresh_pro() != 0)
 		perror("window_refresh_pro");
 
-	printf("按 Ctrl+C 退出\n");
+	printf("Ctrl+C を押すと終了します\n");
     
 	while (1){
 		sleep(1);

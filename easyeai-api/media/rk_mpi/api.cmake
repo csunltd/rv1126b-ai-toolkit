@@ -7,7 +7,7 @@ file(GLOB RKMPI_SOURCE_DIRS
 # headfile path
 set(RKMPI_INCLUDE_DIRS
     ${CMAKE_CURRENT_LIST_DIR} 
-    #这里注释掉，是为了不用/usr/include/rockchip/里面的rk_type.h
+    #ここをコメントアウトしているのは、/usr/include/rockchip/ 内の rk_type.h を使用しないためです
     #/usr/include/rockchip 
     )
 
