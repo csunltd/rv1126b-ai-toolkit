@@ -26,6 +26,12 @@ UiSolutions/*/Makefile
 
 logCfg
 
+# Model files
+*.model
+
+# Generated result images
+**/result.jpg
+
 #easyeai-api
 
 
